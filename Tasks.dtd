@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT taskList (task*)>
+<!ELEMENT task (date, repeats, visibility)>
+<!ATTLIST task
+name CDATA #REQUIRED
+>
+<!ELEMENT date (from, to?)>
+<!ELEMENT from (#PCDATA)> 
+<!ELEMENT to (#PCDATA)> 
+<!ELEMENT repeats (#PCDATA)> 
+<!ELEMENT visibility (#PCDATA)> 
