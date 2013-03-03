@@ -6,13 +6,13 @@ import java.util.GregorianCalendar;
 
 import Sergi.MVC.Controller.Controller;
 
-public class TaskObserver implements Runnable {
+public class TaskObserverOld implements Runnable {
 
-	private int sleepSeconds = 60;
+	private int sleepSeconds = 1;
 	private Controller control;
 	Thread thread;
 
-	public TaskObserver(Controller control) {
+	public TaskObserverOld(Controller control) {
 		this.control = control;
 		thread = new Thread(this);
 		thread.run();
@@ -24,23 +24,8 @@ public class TaskObserver implements Runnable {
 		for (;;) {
 			Task[] tasks = control.getTasks();
 			for (Task task : tasks) {
-				if(task.nextTimeAfter(Calendar.getInstance().getTime()) == null) {
-					if(task.isActive())
-						control.itsTimeToTask(task);
-					task.setActive(false);
-				}
-				if (!task.isActive())
-					continue;
-				Date presentTime = new Date();
-				Date taskTime = task.lastTimeBefore(presentTime);
-				
-				if(taskTime != null && presentTime.after(taskTime) )
-					control.itsTimeToTask(task);
-			}
-			try {
-				Thread.sleep(1000 * sleepSeconds);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				if(!task.isActive()) continue;
+				new TaskTimer(control, task);
 			}
 		}
 	}

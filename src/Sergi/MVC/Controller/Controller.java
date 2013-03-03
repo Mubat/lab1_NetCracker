@@ -2,10 +2,7 @@ package Sergi.MVC.Controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -13,10 +10,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.DOMException;
-import org.xml.sax.SAXException;
 
 import Sergi.MVC.Model.ArrayTaskList;
 import Sergi.MVC.Model.Model;
@@ -24,6 +17,7 @@ import Sergi.MVC.Model.Task;
 import Sergi.MVC.Model.TaskObserver;
 import Sergi.MVC.Viewer.AddEditDialog;
 import Sergi.MVC.Viewer.MainFrame;
+import Sergi.MVC.Viewer.ButtonNames;
 
 public class Controller implements ActionListener, MainFrameObserverInterface,
 		ListSelectionListener {
@@ -31,63 +25,67 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	static SimpleDateFormat sdf;
 	private static Model model;
 	private static MainFrame mainFrame;
+	private Task taskForEdit;
 	private AddEditDialog addDialog;
+	
+	/**
+	 * 
+	 * @throws ClassNotFoundException
+	 *             if the LookAndFeel class could not be found
+	 * @throws InstantiationException
+	 *             if a new instance of the class couldn't be created
+	 * @throws IllegalAccessException
+	 *             if the class or initializer isn't accessible
+	 * @throws UnsupportedLookAndFeelException
+	 *             if lnf.isSupportedLookAndFeel() is false
+	 */
+	public Controller() throws ModelException {
+		try {
+			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (ClassNotFoundException e) {
+			throw new ModelException(e);
+		} catch (InstantiationException e) {
+			throw new ModelException(e);
+		} catch (IllegalAccessException e) {
+			throw new ModelException(e);
+		} catch (UnsupportedLookAndFeelException e) {
+			throw new ModelException(e);
+		}
 
-	public Controller() throws ClassNotFoundException, InstantiationException,
-			IllegalAccessException, UnsupportedLookAndFeelException {
-		UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		mainFrame = new MainFrame("Диспетчер задач");
 		mainFrame.initComponents();
 		this.update();
 		model.registerObserver(this);
-		mainFrame.addActionListeners(this);
+		mainFrame.addActionListener(this);
 		mainFrame.addListSelections(this);
-
 		mainFrame.setVisible(true);
-		new TaskObserver(model, this);
+		
+		new TaskObserver(this);
 	}
 
+	/*
+	 * При редактировании задачи создается новая задача с пустым полем имени, а
+	 * старая задача остается неизменной.
+	 * 
+	 * Как-то надо подправи ть TaskObserver. Время сна может быть и в конце
+	 * мекущей минуты.
+	 */
 	public static void main(String[] args) {
-
 		try {
 			model = new Model();
 			new Controller();
-		} catch (ClassNotFoundException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (InstantiationException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (IllegalAccessException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (UnsupportedLookAndFeelException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (ParserConfigurationException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (SAXException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (IOException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (DOMException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
-		} catch (ParseException e) {
-			MainFrame.showErrorMessage(mainFrame, e.getMessage());
+		} catch (ModelException e) {
+			MainFrame.showErrorMessage(mainFrame, e.toString());
 		}
 	}
 
 	public void showAddDialog(int i) {
 		addDialog = new AddEditDialog(mainFrame, true);
 		if (i == -1) {
-			addDialog.setTaskName(null);
-			addDialog.setStartDate(Calendar.getInstance().getTime());
-			addDialog.setEndDate(Calendar.getInstance().getTime());
-			addDialog.setActiveStatus(false);
-			addDialog.setRepeatInterval(0);
+			addDialog.setTask(new Task());
 		} else {
-			Task task = model.getArrayTaskList().getTask(i);
-			addDialog.setTaskName(task.getTitle());
-			addDialog.setStartDate(task.getStartTime());
-			addDialog.setEndDate(task.getEndTime());
-			addDialog.setActiveStatus(task.isActive());
-			addDialog.setRepeatInterval(task.getRepeatCount());
+			taskForEdit = model.getArrayTaskList().getTask(i);
+			addDialog.setTask(taskForEdit);
 		}
 		addDialog.addListeners(this);
 		addDialog.setVisible(true);
@@ -116,7 +114,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	}
 
 	public void itsTimeToTask(Task task) {
-		JOptionPane.showMessageDialog(mainFrame,
+		JOptionPane.showMessageDialog(null,
 				"Время для задачи \"" + task.getTitle() + "\" настало.",
 				task.getTitle(), JOptionPane.INFORMATION_MESSAGE);
 		model.notifyObservers();
@@ -129,44 +127,48 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		if (MainFrame.BUTTTON_NAME_ADD.equals(event.getActionCommand())) {
+		ButtonNames buttonName = ButtonNames.getType(event.getActionCommand());
+		switch(buttonName) {
+		case BUTTON_NAME_ADD_DIALOG: {
 			this.showAddDialog(-1);
-		} else if (MainFrame.BUTTON_NAME_REPALCE.equals(event
-				.getActionCommand())) {
+			break;
+		}
+		case BUTTON_NAME_REPALCE: {
 			if (mainFrame.getSelectedIndicies().length == 1) {
 				this.showAddDialog(mainFrame.getSelectedIndex());
 			} else
-				mainFrame.showErrorMessage(mainFrame,
+				MainFrame.showErrorMessage(mainFrame,
 						"Выбрано больше одного объекта для изменения!");
-		} else if (MainFrame.BUTTON_NAME_REMOVE
-				.equals(event.getActionCommand())) {
-			this.removeTask(mainFrame.getSelectasValuesList());
-		} else if (MainFrame.BUTTON_NAME_EXIT.equals(event.getActionCommand())) {
-			this.exit();
-		} else if (MainFrame.BUTTON_NAME_FIND.equals(event.getActionCommand())) {
-			this.findTaskIndex(mainFrame.getFindString());
-		} else if (AddEditDialog.BUTTON_NAME_ADD_TASK.equals(event
-				.getActionCommand())) {
-			int repeats = addDialog.getRepeatValue();
-			if (repeats == 0) {
-				Task newTask = new Task(addDialog.getTitle(),
-						addDialog.getStartDate());
-				newTask.setActive(addDialog.getActiveStatus());
-				model.addNewTask(newTask);
-			} else {
-				Task newTask = new Task(addDialog.getTitle(),
-						addDialog.getStartDate(), addDialog.getEndData(),
-						repeats);
-				newTask.setActive(addDialog.getActiveStatus());
-				model.addNewTask(newTask);
-
-			}
-
-			addDialog.jButtonMouseClicked();
-		} else if (AddEditDialog.BUTTON_NAME_CANCEL_TASK.equals(event
-				.getActionCommand())) {
-			addDialog.jButtonMouseClicked();
+			break;
 		}
+		case BUTTON_NAME_REMOVE: {
+			this.removeTask(mainFrame.getSelectasValuesList());
+			break;
+		}
+		case BUTTON_NAME_EXIT: {
+			this.exit();
+			break;
+		}
+		case BUTTON_NAME_FIND: {
+			this.findTaskIndex(mainFrame.getFindString());
+			break;
+		}
+		case BUTTON_NAME_ADD_TASK: {
+			if(taskForEdit != null)
+				model.removeTask(taskForEdit);
+			model.addNewTask(addDialog.getTask());
+			addDialog.dispose();
+			break;
+		}
+		case BUTTON_NAME_CANCEL_TASK: {
+			addDialog.dispose();
+			break;
+		}
+		}
+		
+		mainFrame.setVisible(false);
+		mainFrame.repaint();
+		mainFrame.setVisible(true);
 	}
 
 	@Override
@@ -176,6 +178,6 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
-		mainFrame.setButtonEnabled(MainFrame.BUTTON_NAME_REMOVE, true);
+		mainFrame.setButtonEnabled(ButtonNames.BUTTON_NAME_REMOVE.getTypeValue(), true);
 	}
 }

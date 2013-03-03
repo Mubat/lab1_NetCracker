@@ -27,22 +27,21 @@ import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import Sergi.MVC.Model.Task;
+
 import com.toedter.calendar.JDateChooser;
 
 public class AddEditDialog extends JDialog {
 
 	private static final long serialVersionUID = 1630046389235533533L;
 
-	public static final String BUTTON_NAME_ADD_TASK = "Добавить задачу";
-	public static final String BUTTON_NAME_CANCEL_TASK = "Отмена";
-
 	private static Integer[] hours = new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8,
 			9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
-	private static Integer[] minutes = new Integer[] { 0, 1, 2, 3, 4, 6, 7, 8,
-			9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-			26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-			43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-			60 };
+	private static Integer[] minutes = new Integer[] { 
+			 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 
+			 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 
+			 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 
+			 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60 };
 
 	private static JSpinner jSpinner;// количество повторений
 	private ButtonGroup jRadioVisible;// группа радиокнопок активности задачи
@@ -56,8 +55,8 @@ public class AddEditDialog extends JDialog {
 
 	private static JButton jAddButton;// кнопка добавления новой задачи
 	private static JButton jCancelButton;// кнопка отмены
-	private JRadioButton jRadioYes;
 
+	private JRadioButton jRadioYes;
 	private JRadioButton jRadioNo;
 
 	// =============================================================================
@@ -71,15 +70,15 @@ public class AddEditDialog extends JDialog {
 	 */
 	public AddEditDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
 		super(owner, rootPaneCheckingEnabled);
-		initComponents(false);
+		initComponents();
 	}
 
 	// -----------------------------------------------------------------------------
 	/**
 	 * Оформление диалога для добавления/редактирования задачи
 	 */
-	private void initComponents(boolean isEDITdialog)
-			throws IllegalArgumentException {
+	private void initComponents() throws IllegalArgumentException {
+		
 		this.setLayout(new GridBagLayout());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -97,7 +96,7 @@ public class AddEditDialog extends JDialog {
 		this.add(new JLabel("Дата", JLabel.RIGHT), new GridBagConstraints(0, 1,
 				1, 2, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
 				new Insets(5, 5, 5, 5), 0, 0));
-		getDatePanel(isEDITdialog);
+		getDatePanel();
 
 		// Количество повторений
 		this.add(new JLabel("Количество повторений", JLabel.RIGHT),
@@ -113,17 +112,17 @@ public class AddEditDialog extends JDialog {
 		this.add(new JLabel("Статус:", JLabel.RIGHT), new GridBagConstraints(0,
 				4, 1, 1, 0, 0, GridBagConstraints.EAST,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		this.add(getRadioButtonGroup(isEDITdialog), new GridBagConstraints(1,
+		this.add(getRadioButtonGroup(), new GridBagConstraints(1,
 				4, 3, 1, 0, 0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 		// Кнопки добавления/редактирования задачи и отмены
-		jAddButton = new JButton(BUTTON_NAME_ADD_TASK);
+		jAddButton = new JButton(ButtonNames.BUTTON_NAME_ADD_TASK.getTypeValue());
 		jAddButton.setPreferredSize(new Dimension(180, 50));
 		this.add(jAddButton, new GridBagConstraints(1, 5, 2, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
 						5, 5, 5, 5), 0, 0));
-		jCancelButton = new JButton(BUTTON_NAME_CANCEL_TASK);
+		jCancelButton = new JButton(ButtonNames.BUTTON_NAME_CANCEL_TASK.getTypeValue());
 		this.add(jCancelButton, new GridBagConstraints(3, 5, 2, 1, 0, 0,
 				GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
 				new Insets(5, 5, 5, 5), 0, 0));
@@ -163,7 +162,7 @@ public class AddEditDialog extends JDialog {
 	 * 
 	 * @return JPanel панель выбора дат
 	 */
-	private void getDatePanel(boolean isEDITdialog) {
+	private void getDatePanel() {
 		this.add(new JLabel("Начало"), new GridBagConstraints(1, 1, 1, 1, 0, 0,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5,
 						0, 5, 5), 0, 0));
@@ -208,7 +207,7 @@ public class AddEditDialog extends JDialog {
 	 * 
 	 * @return JPanel панель с группой радиокнопок
 	 */
-	private Component getRadioButtonGroup(boolean isEDITdialog) {
+	private Component getRadioButtonGroup() {
 		JPanel jVisibilityPanel = new JPanel();
 		jVisibilityPanel.setLayout(new GridLayout(1, 2));
 		jRadioVisible = new ButtonGroup();
@@ -233,20 +232,20 @@ public class AddEditDialog extends JDialog {
 	}
 
 	// -----------------------------------------------------------------------------
-
-	public void setTaskName(String taskName) {
+	private void setTaskName(String taskName) {
 		jTaskName.setText(taskName);
 	}
 
-	public String getTaskName() {
+	private String getTaskName() {
 		return jTaskName.getText();
 	}
 
-	public int getRepeatValue() {
+	private int getRepeatValue() {
 		return (Integer) jSpinner.getValue();
 	}
 
-	public Date getStartDate() {
+	// -----------------------------------------------------------------------------
+	private Date getStartDate() {
 		Calendar cal = new GregorianCalendar();
 		cal.setTime(jDateChooserBegin.getDate());
 		cal.set(Calendar.HOUR_OF_DAY, (Integer) jHourBegin.getSelectedItem());
@@ -254,7 +253,8 @@ public class AddEditDialog extends JDialog {
 		return cal.getTime();
 	}
 
-	public Date getEndData() {
+	// -----------------------------------------------------------------------------
+	private Date getEndData() {
 		Calendar cal = new GregorianCalendar();
 		cal.setTime(jDateChooserEnd.getDate());
 		cal.set(Calendar.HOUR_OF_DAY, (Integer) jHourEnd.getSelectedItem());
@@ -262,11 +262,13 @@ public class AddEditDialog extends JDialog {
 		return cal.getTime();
 	}
 
-	public boolean getActiveStatus() {
+	// -----------------------------------------------------------------------------
+	private boolean getActiveStatus() {
 		return jRadioYes.isSelected();
 	}
 
-	public void setStartDate(Date startDate) {
+	// -----------------------------------------------------------------------------
+	private void setStartDate(Date startDate) {
 		Calendar startCalendar = new GregorianCalendar();
 		startCalendar.setTime(startDate);
 		jDateChooserBegin.setDate(startDate);
@@ -274,7 +276,8 @@ public class AddEditDialog extends JDialog {
 		jMinuteBegin.setSelectedItem(startCalendar.get(Calendar.MINUTE));
 	}
 
-	public void setEndDate(Date endDate) {
+	// -----------------------------------------------------------------------------
+	private void setEndDate(Date endDate) {
 		Calendar endCalendar = new GregorianCalendar();
 		endCalendar.setTime(endDate);
 		jDateChooserEnd.setDate(endDate);
@@ -282,16 +285,39 @@ public class AddEditDialog extends JDialog {
 		jMinuteEnd.setSelectedItem(endCalendar.get(Calendar.MINUTE));
 	}
 
-	public void setRepeatInterval(int repeats) {
+	// -----------------------------------------------------------------------------
+	private void setRepeatInterval(int repeats) {
 		jSpinner.setValue(repeats);
 	}
 
-	public void setActiveStatus(boolean isActive) {
+	// -----------------------------------------------------------------------------
+	private void setActiveStatus(boolean isActive) {
 		jRadioYes.setSelected(isActive);
 		jRadioNo.setSelected(!isActive);
 	}
 
-	// ----------------------------
+	// -----------------------------------------------------------------------------
+	public void setTask(Task task) {
+		this.setTaskName(task.getTitle());
+		this.setStartDate(task.getStartTime());
+		this.setEndDate(task.getEndTime());
+		this.setActiveStatus(task.isActive());
+		this.setRepeatInterval(task.getRepeatCount());
+	}
+
+	// -----------------------------------------------------------------------------
+	public Task getTask() {
+		Task createdTask = new Task();
+		createdTask.setTitle(this.getTaskName());
+		createdTask.setActive(this.getActiveStatus());
+		createdTask.setStartTime(this.getStartDate());
+		createdTask.setRepeatCount(this.getRepeatValue());
+		if(this.getRepeatValue() > 0)
+			createdTask.setEndTime(this.getEndData());
+		return createdTask; 
+	}
+
+	// -----------------------------------------------------------------------------
 	private class RepeatSpinnerModel implements SpinnerModel {
 		List<ChangeListener> listenerList = new LinkedList<ChangeListener>();
 		int value = 1;
@@ -343,9 +369,7 @@ public class AddEditDialog extends JDialog {
 			for (ChangeListener listener : listenerList) {
 				listener.stateChanged(new ChangeEvent(value));
 			}
-
 		}
-
 	}
 
 }

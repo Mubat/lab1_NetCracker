@@ -17,18 +17,19 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionListener;
 
 public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	public static final String BUTTTON_NAME_ADD = "<html><body align = center>Добавить<br>новую задачу</body></html>";
-	public static final String BUTTON_NAME_REPALCE = "<html><body align = center>Редактировать<br/>задачу</body></html>";
-	public static final String BUTTON_NAME_REMOVE = "Удалить задачу";
-	public static final String BUTTON_NAME_EXIT = "Выход";
-	public static final String BUTTON_NAME_FIND = "Найти задачу";
-	public static final String FIND_TEXT_FIELD_NAME = "TextField";
+
+//	public static final String BUTTTON_NAME_ADD_DIALOG = ;
+//	public static final String BUTTON_NAME_REPALCE = ;
+//	public static final String BUTTON_NAME_REMOVE = ;
+//	public static final String BUTTON_NAME_EXIT = ;
+//	public static final String BUTTON_NAME_FIND = ;
 	
 	private final String findFieldText = new String("введите название задачи");
 
@@ -51,70 +52,86 @@ public class MainFrame extends JFrame {
 	public void initComponents() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
-//		this.setPreferredSize(new Dimension(800, 400));
-		createButtons();
+		
+		JPanel mainPanel = new JPanel();
+		initMainPanel(mainPanel);
 
-		createTaskList();
-
-		// нижняя часть. Строка поиска
-		createFindPanel();
-
+		JPanel buttonPanel = new JPanel();
+		initButtonPanel(buttonPanel);
+		
+		JPanel findPanel = new JPanel();
+		initFindPanel(findPanel);
+		
+		this.add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0,
+						5, 0, 5), 0, 0));
+		this.add(buttonPanel, new GridBagConstraints(1, 0, 1, 1, 0, 0,
+				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
+						5, 0, 5), 0, 0));
+		this.add(findPanel, new GridBagConstraints(0, 1, 1, 1, 0, 0,
+				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
+						5, 0, 5), 0, 0));
 		addFocusListeners();
 
 	}
 
-	private void createFindPanel() {
+	private void initMainPanel(JPanel panel) {
+		JLabel text = new JLabel("Список задач", JLabel.CENTER);
+		Font font = new Font("Gabriola", Font.BOLD, 36);
+		text.setFont(font);
+		panel.setLayout(new GridBagLayout());
+		panel.add(text, new GridBagConstraints(0, 0, 3, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0,
+						5, 0, 5), 0, 0));
+		jList = new JList<Object>();
+		panel.add(jList, new GridBagConstraints(0, 1, 3, 4, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,
+						5, 5, 5), 0, 0));
+	}
+
+	private void initButtonPanel(JPanel panel) {
+		jAddButton = new JButton(ButtonNames.BUTTON_NAME_ADD_DIALOG.getTypeValue());
+		jReplaceButton = new JButton(ButtonNames.BUTTON_NAME_REPALCE.getTypeValue());
+		jRemoveButton = new JButton(ButtonNames.BUTTON_NAME_REMOVE.getTypeValue());
+		jRemoveButton.setEnabled(false);
+		jExitButton = new JButton(ButtonNames.BUTTON_NAME_EXIT.getTypeValue());
+		
+		panel.setLayout(new GridBagLayout());
+		panel.add(jAddButton, new GridBagConstraints(0, 0, 1, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
+						5, 5, 5), 0, 0));
+		panel.add(jReplaceButton, new GridBagConstraints(0, 1, 1, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
+						5, 5, 5), 0, 0));
+		panel.add(jRemoveButton, new GridBagConstraints(0, 2, 1, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
+						5, 5, 5), 0, 0));
+		panel.add(jExitButton, new GridBagConstraints(0, 3, 1, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
+						5, 5, 5), 0, 0));
+
+	}
+
+	private void initFindPanel(JPanel panel) {
 		jtfFind = new JTextField(findFieldText);
-		jtfFind.setName(FIND_TEXT_FIELD_NAME);
+		jtfFind.setName("TextField");
 		jtfFind.setColumns(20);
-		jFindButton = new JButton(BUTTON_NAME_FIND);
-		this.add(jtfFind, new GridBagConstraints(0, 7, 2, 1, 0, 0,
+		jFindButton = new JButton(ButtonNames.BUTTON_NAME_FIND.getTypeValue());
+		
+		panel.setLayout(new GridBagLayout());
+		panel.add(jtfFind, new GridBagConstraints(0, 1, 2, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5,
 						5, 5, 5), 0, 0));
-		this.add(jFindButton, new GridBagConstraints(2, 7, 1, 1, 0, 0,
+		panel.add(jFindButton, new GridBagConstraints(2, 1, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						5, 5, 5), 0, 0));
 	}
 
-	private void createButtons() {
-		jAddButton = new JButton(BUTTTON_NAME_ADD);
-		jReplaceButton = new JButton(BUTTON_NAME_REPALCE);
-		jRemoveButton = new JButton(BUTTON_NAME_REMOVE);
-		jRemoveButton.setEnabled(false);
-		jExitButton = new JButton(BUTTON_NAME_EXIT);
-		
-		this.add(jAddButton, new GridBagConstraints(4, 0, 1, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
-						5, 5, 5), 0, 0));
-		this.add(jReplaceButton, new GridBagConstraints(4, 1, 1, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
-						5, 5, 5), 0, 0));
-		this.add(jRemoveButton, new GridBagConstraints(4, 2, 1, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
-						5, 5, 5), 0, 0));
-		this.add(jExitButton, new GridBagConstraints(4, 3, 1, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5,
-						5, 5, 5), 0, 0));
-
-	}
-
-	private void createTaskList() {
-		JLabel text = new JLabel("Список задач", JLabel.CENTER);
-		Font font = new Font("Gabriola", Font.BOLD, 36);
-		text.setFont(font);
-		this.add(text, new GridBagConstraints(0, 0, 3, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0,
-						5, 0, 5), 0, 0));
-		jList = new JList<Object>();
-		this.add(jList, new GridBagConstraints(0, 1, 3, 4, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,
-						5, 5, 5), 0, 0));
-	}
 	/**
 	 * 
 	 * @param listener ActionListener & ListSelectionListener
 	 */
-	public void addActionListeners(EventListener listener) {
+	public void addActionListener(EventListener listener) {
 		jAddButton.addActionListener((ActionListener) listener);
 		jReplaceButton.addActionListener((ActionListener) listener);
 		jRemoveButton.addActionListener((ActionListener) listener);
@@ -197,7 +214,7 @@ public class MainFrame extends JFrame {
 		
 	}
 
-	/* (non-Javadoc)
+	/** (non-Javadoc)
 	 * @see java.awt.Window#setVisible(boolean)
 	 */
 	@Override
@@ -206,6 +223,5 @@ public class MainFrame extends JFrame {
 		setLocationRelativeTo(null);
 		super.setVisible(arg0);
 	}
-	
 	
 }

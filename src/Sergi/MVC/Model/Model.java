@@ -6,8 +6,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -21,7 +19,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import Sergi.MVC.Controller.MainFrameObserverInterface;
-import Sergi.MVC.Model.parse.MyErrHandler;
+import Sergi.MVC.Controller.ModelException;
 import Sergi.MVC.Model.parse.XMLreadWrite;
 
 /**
@@ -40,10 +38,21 @@ public class Model {
 	private String fileName = "Tasks.xml";
 	private XMLreadWrite analyzer;
 
-	public Model() throws ParserConfigurationException, SAXException,
-			IOException, DOMException, ParseException {
+	public Model() throws ModelException {
 		arrList = new ArrayList<Task>();
-		addTaskArray(readTasksFromFile());
+		try {
+			addTaskArray(readTasksFromFile());
+		} catch (DOMException e) {
+			throw new ModelException(e);
+		} catch (ParserConfigurationException e) {
+			throw new ModelException(e);
+		} catch (SAXException e) {
+			throw new ModelException(e);
+		} catch (IOException e) {
+			throw new ModelException(e);
+		} catch (ParseException e) {
+			throw new ModelException(e);
+		}
 
 	}
 
@@ -109,15 +118,8 @@ public class Model {
 
 	public Task[] readTasksFromFile() throws ParserConfigurationException,
 			SAXException, IOException, DOMException, ParseException {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		db.setErrorHandler(new MyErrHandler());
-		Document doc = db.parse(fileName);
-		if (doc != null) {
-			analyzer = new XMLreadWrite();
-			analyzer.analyze(doc);
-		}
-		return analyzer.getTaskArray();
+		analyzer = new XMLreadWrite();
+		return analyzer.parseXMLFile(fileName);
 	}
 
 	public Document writeTasksToFile(Task[] taskArray) {

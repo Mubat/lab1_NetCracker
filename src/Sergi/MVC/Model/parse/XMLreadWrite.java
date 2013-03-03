@@ -1,5 +1,6 @@
 package Sergi.MVC.Model.parse;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +17,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import Sergi.MVC.Model.Task;
 
@@ -145,5 +147,28 @@ public class XMLreadWrite {
 		}
 
 		return doc;
+	}
+
+	/**
+	 * 
+	 * @param fileName string of file name, where xml.
+	 * @return array of parsed Tasks
+	 * @throws DOMException
+	 * @throws ParseException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public Task[] parseXMLFile(String fileName) 
+			throws DOMException, ParseException, SAXException, 
+			IOException, ParserConfigurationException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(fileName);
+		if (doc != null) {
+			analyze(doc);
+		}
+		return getTaskArray();
+		
 	}
 }
