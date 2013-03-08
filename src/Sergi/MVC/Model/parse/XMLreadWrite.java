@@ -1,5 +1,6 @@
 package Sergi.MVC.Model.parse;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -38,8 +39,8 @@ public class XMLreadWrite {
 	 * 
 	 * @param node
 	 *            variable of type Node which is analyzed.
-	 * @throws ParseException 
-	 * @throws DOMException 
+	 * @throws ParseException
+	 * @throws DOMException
 	 */
 	public void analyze(Node node) throws DOMException, ParseException {
 		switch (node.getNodeType()) {
@@ -55,8 +56,8 @@ public class XMLreadWrite {
 				if (node.getNodeName().equals("task")) {
 					if (newTask != null) {
 						newTask = new Task();
-						if(!arrList.contains(newTask))
-								arrList.add(newTask);
+						if (!arrList.contains(newTask))
+							arrList.add(newTask);
 					}
 					NamedNodeMap attrs = node.getAttributes();
 					for (int i = 0; i < attrs.getLength(); i++)
@@ -77,13 +78,13 @@ public class XMLreadWrite {
 		} // close switch for ATTRIBUTE_NODE
 		case Node.TEXT_NODE: {
 			String nodeName = node.getParentNode().getNodeName();
-			if("from".equals(nodeName))
+			if ("from".equals(nodeName))
 				newTask.setStartTime(getDate(node.getNodeValue()));
 			else if ("to".equals(nodeName))
 				newTask.setEndTime(getDate(node.getNodeValue()));
-			else if("repeats".equals(nodeName))
+			else if ("repeats".equals(nodeName))
 				newTask.setRepeatCount(Integer.parseInt(node.getNodeValue()));
-			else if("visibility".equals(nodeName))
+			else if ("visibility".equals(nodeName))
 				newTask.setActive(Boolean.parseBoolean(node.getNodeValue()));
 		}// close switch for type of TEXT_NODE
 		}// close switch for type of Node
@@ -91,15 +92,11 @@ public class XMLreadWrite {
 
 	// -----------------------------------------------------------------------------
 	private static Date getDate(String dateString) throws ParseException {
-			return sdf.parse(dateString);
+		return sdf.parse(dateString);
 	}
 
-	public Task[] getTaskArray() {
-		Task[] massTask = new Task[arrList.size()];
-		for (int i = 0; i < massTask.length; i++) {
-			massTask[i] = arrList.get(i);
-		}
-		return massTask;
+	public  ArrayList<Task> getTaskList() {
+		return arrList;
 	}
 
 	public Document createDocument(Task[] taskArray)
@@ -123,27 +120,27 @@ public class XMLreadWrite {
 			task.appendChild(date);
 
 			Element fromDate = doc.createElement("from");
-			fromDate.appendChild(doc.createTextNode(
-					sdf.format(taskArray[i].getStartTime())));
+			fromDate.appendChild(doc.createTextNode(sdf.format(taskArray[i]
+					.getStartTime())));
 			date.appendChild(fromDate);
-			
-			if(taskArray[i].isRepeated()) {
+
+			if (taskArray[i].isRepeated()) {
 				Element toDate = doc.createElement("to");
-				toDate.appendChild(doc.createTextNode(
-						sdf.format(taskArray[i].getEndTime())));
+				toDate.appendChild(doc.createTextNode(sdf.format(taskArray[i]
+						.getEndTime())));
 				date.appendChild(toDate);
 			}
-			
+
 			Element repeats = doc.createElement("repeats");
-			repeats.appendChild(doc.createTextNode(
-					Integer.toString(taskArray[i].getRepeatCount())));
+			repeats.appendChild(doc.createTextNode(Integer
+					.toString(taskArray[i].getRepeatCount())));
 			task.appendChild(repeats);
-			
+
 			Element visibility = doc.createElement("visibility");
-			visibility.appendChild(doc.createTextNode(
-					Boolean.toString(taskArray[i].isActive())));
+			visibility.appendChild(doc.createTextNode(Boolean
+					.toString(taskArray[i].isActive())));
 			task.appendChild(visibility);
-				
+
 		}
 
 		return doc;
@@ -151,7 +148,8 @@ public class XMLreadWrite {
 
 	/**
 	 * 
-	 * @param fileName string of file name, where xml.
+	 * @param fileName
+	 *            string of file name, where xml.
 	 * @return array of parsed Tasks
 	 * @throws DOMException
 	 * @throws ParseException
@@ -159,16 +157,15 @@ public class XMLreadWrite {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	public Task[] parseXMLFile(String fileName) 
-			throws DOMException, ParseException, SAXException, 
-			IOException, ParserConfigurationException {
+	public ArrayList<Task> parseXMLFile(String fileName) throws DOMException,
+			ParseException, SAXException, IOException,
+			ParserConfigurationException, FileNotFoundException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.parse(fileName);
-		if (doc != null) {
+		if (doc != null)
 			analyze(doc);
-		}
-		return getTaskArray();
-		
+		return getTaskList();
+
 	}
 }

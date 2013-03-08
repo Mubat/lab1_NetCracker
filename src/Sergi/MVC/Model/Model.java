@@ -1,6 +1,7 @@
 package Sergi.MVC.Model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import Sergi.MVC.Controller.Controller;
 import Sergi.MVC.Controller.MainFrameObserverInterface;
 import Sergi.MVC.Controller.ModelException;
 import Sergi.MVC.Model.parse.XMLreadWrite;
@@ -32,8 +34,7 @@ public class Model {
 	 * @uml.associationEnd multiplicity="(1 1)"
 	 */
 	private ArrayTaskList arrTaskList = new ArrayTaskList();
-	private ArrayList<MainFrameObserverInterface> addEditObservers 
-				= new ArrayList<MainFrameObserverInterface>();
+	private ArrayList<MainFrameObserverInterface> addEditObservers = new ArrayList<MainFrameObserverInterface>();
 	private ArrayList<Task> arrList;
 	private String fileName = "Tasks.xml";
 	private XMLreadWrite analyzer;
@@ -41,19 +42,22 @@ public class Model {
 	public Model() throws ModelException {
 		arrList = new ArrayList<Task>();
 		try {
-			addTaskArray(readTasksFromFile());
+			arrList = readTasksFromFile();
 		} catch (DOMException e) {
 			throw new ModelException(e);
 		} catch (ParserConfigurationException e) {
 			throw new ModelException(e);
 		} catch (SAXException e) {
 			throw new ModelException(e);
+		} catch (FileNotFoundException e) {
+			Controller.showErrorMessage("XML file with saved taskList not found. " +
+						"Please, check file \"Task.xml\" in folder with program.");
 		} catch (IOException e) {
 			throw new ModelException(e);
 		} catch (ParseException e) {
 			throw new ModelException(e);
 		}
-
+		notifyObservers();
 	}
 
 	public void addNewTask(Task task) {
@@ -116,8 +120,9 @@ public class Model {
 		}
 	}
 
-	public Task[] readTasksFromFile() throws ParserConfigurationException,
-			SAXException, IOException, DOMException, ParseException {
+	public ArrayList<Task> readTasksFromFile()
+			throws ParserConfigurationException, SAXException, IOException,
+			DOMException, ParseException, FileNotFoundException {
 		analyzer = new XMLreadWrite();
 		return analyzer.parseXMLFile(fileName);
 	}

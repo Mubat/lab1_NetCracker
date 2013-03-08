@@ -88,7 +88,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			addDialog.setTask(taskForEdit);
 		}
 		addDialog.addListeners(this);
-		addDialog.setVisible(true);
+		addDialog.setVisible(true); 
 
 	}
 
@@ -137,8 +137,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			if (mainFrame.getSelectedIndicies().length == 1) {
 				this.showAddDialog(mainFrame.getSelectedIndex());
 			} else
-				MainFrame.showErrorMessage(mainFrame,
-						"Выбрано больше одного объекта для изменения!");
+				showErrorMessage("Выбрано больше одного объекта для изменения!");
 			break;
 		}
 		case BUTTON_NAME_REMOVE: {
@@ -179,5 +178,10 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 		mainFrame.setButtonEnabled(ButtonNames.BUTTON_NAME_REMOVE.getTypeValue(), true);
+	}
+	
+	public static void showErrorMessage(String errorString) {
+		MainFrame.showErrorMessage(mainFrame,
+				errorString);
 	}
 }
