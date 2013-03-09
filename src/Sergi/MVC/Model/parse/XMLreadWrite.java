@@ -37,8 +37,7 @@ public class XMLreadWrite {
 	 * Method, which recursively examines the elements XML document and stores
 	 * the final document flow.
 	 * 
-	 * @param node
-	 *            variable of type Node which is analyzed.
+	 * @param node variable of type Node which is analyzed.
 	 * @throws ParseException
 	 * @throws DOMException
 	 */
@@ -95,7 +94,7 @@ public class XMLreadWrite {
 		return sdf.parse(dateString);
 	}
 
-	public  ArrayList<Task> getTaskList() {
+	public ArrayList<Task> getTaskList() {
 		return arrList;
 	}
 
@@ -148,9 +147,8 @@ public class XMLreadWrite {
 
 	/**
 	 * 
-	 * @param fileName
-	 *            string of file name, where xml.
-	 * @return array of parsed Tasks
+	 * @param fileName string of file name, where xml.
+	 * @return ArrayList of parsed Tasks
 	 * @throws DOMException
 	 * @throws ParseException
 	 * @throws SAXException

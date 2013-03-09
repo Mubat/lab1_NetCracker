@@ -1,41 +1,41 @@
 package Sergi.MVC.Model;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
-import Sergi.MVC.Controller.Controller;
+import javax.swing.JOptionPane;
 
 public class TaskObserver implements Runnable {
 
 	private int sleepSeconds = 60;
-	private Controller control;
-	Thread thread;
+	private Model model;
 
-	public TaskObserver(Controller control) {
-		this.control = control;
-		thread = new Thread(this);
-		thread.run();
+	public TaskObserver(Model model) {
+		this.model = model;
 
 	}
 
 	@Override
 	public void run() {
 		for (;;) {
-			Task[] tasks = control.getTasks();
+			ArrayList<Task> tasks = model.getTaskList();
 			for (Task task : tasks) {
-				if(task.nextTimeAfter(Calendar.getInstance().getTime()) == null) {
-					if(task.isActive())
-						control.itsTimeToTask(task);
-					task.setActive(false);
-				}
 				if (!task.isActive())
 					continue;
 				Date presentTime = new Date();
+
+				if (task.nextTimeAfter(presentTime) == null) {
+					if (task.isActive()) {
+						model.itsTimeToTask(task);
+						task.setActive(false);
+					}
+					continue;
+				}
+
 				Date taskTime = task.lastTimeBefore(presentTime);
-				
-				if(taskTime != null && presentTime.after(taskTime) )
-					control.itsTimeToTask(task);
+				if (taskTime != null && presentTime.after(taskTime)) {
+					model.itsTimeToTask(task);
+				}
 			}
 			try {
 				Thread.sleep(1000 * sleepSeconds);
@@ -44,25 +44,4 @@ public class TaskObserver implements Runnable {
 			}
 		}
 	}
-
-	/**
-	 * Sravneniye dvuh dat
-	 * 
-	 * @param from
-	 * @param with
-	 * @return true  is both data are comparable.
-	 */
-	public static boolean dateCompare(Date date, Date with) {
-		Calendar calF = new GregorianCalendar();
-		calF.setTime(date);
-		Calendar calW = new GregorianCalendar();
-		calW.setTime(with);
-		if (calF.get(Calendar.DAY_OF_YEAR) == calW.get(Calendar.DAY_OF_YEAR)
-				&& calF.get(Calendar.HOUR_OF_DAY) == calW
-						.get(Calendar.HOUR_OF_DAY)
-				&& calF.get(Calendar.MINUTE) == calW.get(Calendar.MINUTE))
-			return true;
-		return false;
-	}
-
 }

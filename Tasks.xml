@@ -1,1 +1,40 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><taskList><task name="2w.future"><date><from>15 мар 2013 18:00</from><to>17 мар 2013 19:30</to></date><repeats>30</repeats><visibility>false</visibility></task><task name="4w.future"><date><from>12 фев 2013 10:15</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="serg"><date><from>24 фев 2013 19:42</from><to>24 фев 2013 19:45</to></date><repeats>1</repeats><visibility>false</visibility></task><task name="2fgfmg"><date><from>02 мар 2013 19:33</from></date><repeats>0</repeats><visibility>false</visibility></task><task name=""><date><from>02 мар 2013 19:42</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="dsag"><date><from>02 мар 2013 19:37</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="fgsdfg"><date><from>02 мар 2013 19:37</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="fdsgfds"><date><from>02 мар 2013 19:37</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="sadrghwerhg"><date><from>02 мар 2013 19:39</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="sdfbsdfb"><date><from>02 мар 2013 19:39</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="sdfnbsrefth"><date><from>02 мар 2013 19:40</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="sebfsdrftb"><date><from>02 мар 2013 19:40</from></date><repeats>0</repeats><visibility>false</visibility></task><task name="srngsrtgnwr"><date><from>02 мар 2013 19:40</from></date><repeats>0</repeats><visibility>false</visibility></task></taskList>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<taskList>
+	<task name="2w.future">
+		<date>
+			<from>15 мар 2013 18:00</from>
+			<to>17 мар 2013 19:30</to>
+		</date>
+		<repeats>30</repeats>
+		<visibility>false</visibility>
+	</task>
+	<task name="4w.future">
+		<date>
+			<from>12 фев 2013 10:15</from>
+		</date>
+		<repeats>0</repeats>
+		<visibility>false</visibility>
+	</task>
+	<task name="serg">
+		<date>
+			<from>24 фев 2013 19:42</from>
+			<to>24 фев 2013 19:45</to>
+		</date>
+		<repeats>1</repeats>
+		<visibility>true</visibility>
+	</task>
+	<task name="2fgfmg">
+		<date>
+			<from>02 мар 2013 19:33</from>
+		</date>
+		<repeats>0</repeats>
+		<visibility>false</visibility>
+	</task>
+	<task name="rgthwrth">
+		<date>
+			<from>09 мар 2013 14:19</from>
+		</date>
+		<repeats>0</repeats>
+		<visibility>true</visibility>
+	</task>
+</taskList>

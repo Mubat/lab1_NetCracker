@@ -5,6 +5,8 @@ import java.text.ParseException;
 
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.DOMException;
 import org.xml.sax.SAXException;
@@ -48,6 +50,14 @@ public class ModelException extends Exception {
 	}
 
 	public ModelException(ParseException e) {
+		this.e = e;
+	}
+
+	public ModelException(TransformerConfigurationException e) {
+		this.e = e;
+	}
+
+	public ModelException(TransformerException e) {
 		this.e = e;
 	}
 

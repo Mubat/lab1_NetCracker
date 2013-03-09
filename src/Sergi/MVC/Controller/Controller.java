@@ -3,6 +3,7 @@ package Sergi.MVC.Controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -27,7 +28,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	private static MainFrame mainFrame;
 	private Task taskForEdit;
 	private AddEditDialog addDialog;
-	
+
 	/**
 	 * 
 	 * @throws ClassNotFoundException
@@ -41,7 +42,8 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	 */
 	public Controller() throws ModelException {
 		try {
-			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+			UIManager
+					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (ClassNotFoundException e) {
 			throw new ModelException(e);
 		} catch (InstantiationException e) {
@@ -54,13 +56,12 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 		mainFrame = new MainFrame("Диспетчер задач");
 		mainFrame.initComponents();
-		this.update();
+		this.update(model.getTaskList());
 		model.registerObserver(this);
 		mainFrame.addActionListener(this);
 		mainFrame.addListSelections(this);
 		mainFrame.setVisible(true);
-		
-		new TaskObserver(this);
+
 	}
 
 	/*
@@ -84,21 +85,12 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		if (i == -1) {
 			addDialog.setTask(new Task());
 		} else {
-			taskForEdit = model.getArrayTaskList().getTask(i);
+			taskForEdit = model.getTaskList().get(i);
 			addDialog.setTask(taskForEdit);
 		}
 		addDialog.addListeners(this);
-		addDialog.setVisible(true); 
+		addDialog.setVisible(true);
 
-	}
-
-	public Task[] getTasks() {
-		ArrayTaskList arrList = model.getArrayTaskList();
-		Task[] tasks = new Task[arrList.size()];
-		for (int i = 0; i < arrList.size(); i++) {
-			tasks[i] = arrList.getTask(i);
-		}
-		return tasks;
 	}
 
 	public void findTaskIndex(String text) {
@@ -113,22 +105,15 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		}
 	}
 
-	public void itsTimeToTask(Task task) {
-		JOptionPane.showMessageDialog(null,
-				"Время для задачи \"" + task.getTitle() + "\" настало.",
-				task.getTitle(), JOptionPane.INFORMATION_MESSAGE);
-		model.notifyObservers();
-	}
-
-	public void exit() {
-		model.writeTasksToFile(getTasks());
+	public void exit() throws ModelException {
+		model.writeTasksToFile(model.getArrayTaskList());// включить когда все работает
 		System.exit(0);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		ButtonNames buttonName = ButtonNames.getType(event.getActionCommand());
-		switch(buttonName) {
+		switch (buttonName) {
 		case BUTTON_NAME_ADD_DIALOG: {
 			this.showAddDialog(-1);
 			break;
@@ -145,7 +130,11 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			break;
 		}
 		case BUTTON_NAME_EXIT: {
-			this.exit();
+			try {
+				this.exit();
+			} catch (ModelException e) {
+				MainFrame.showErrorMessage(mainFrame, e.getMessage());
+			}
 			break;
 		}
 		case BUTTON_NAME_FIND: {
@@ -153,7 +142,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			break;
 		}
 		case BUTTON_NAME_ADD_TASK: {
-			if(taskForEdit != null)
+			if (taskForEdit != null)
 				model.removeTask(taskForEdit);
 			model.addNewTask(addDialog.getTask());
 			addDialog.dispose();
@@ -164,24 +153,29 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			break;
 		}
 		}
-		
+
 		mainFrame.setVisible(false);
 		mainFrame.repaint();
 		mainFrame.setVisible(true);
 	}
 
 	@Override
-	public void update() {
-		mainFrame.updateList(getTasks());
+	public void update(Object value) {
+		if (value instanceof Task)
+			JOptionPane.showMessageDialog(null, "It`s time for task \""
+					+ ((Task) value).getTitle() + "\".",
+					((Task) value).getTitle(), JOptionPane.DEFAULT_OPTION);
+		else if (value instanceof ArrayList<?>)
+			mainFrame.updateList(model.getArrayTaskList());
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
-		mainFrame.setButtonEnabled(ButtonNames.BUTTON_NAME_REMOVE.getTypeValue(), true);
+		mainFrame.setButtonEnabled(
+				ButtonNames.BUTTON_NAME_REMOVE.getTypeValue(), true);
 	}
-	
+
 	public static void showErrorMessage(String errorString) {
-		MainFrame.showErrorMessage(mainFrame,
-				errorString);
+		MainFrame.showErrorMessage(mainFrame, errorString);
 	}
 }

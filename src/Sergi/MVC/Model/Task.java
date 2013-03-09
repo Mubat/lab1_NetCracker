@@ -201,10 +201,9 @@ public class Task implements Cloneable, Serializable {
 	/**
 	 * Metod vozvrashsaet vremya sleduushego opovesheniya, posle ukazannogo
 	 * vremeni. Esli posle ukazannogo vremeni sobitiy bolshe net ili zadacha
-	 * neaktivna return null. Esli metod ne aktivniy, to vozvrashaetsya null.
+	 * neaktivna return null.
 	 * 
-	 * @param time
-	 *            current time
+	 * @param time current time
 	 * @return time null, if there is not events after this time
 	 * @throw IllegalArgumentException if param time < 0
 	 */

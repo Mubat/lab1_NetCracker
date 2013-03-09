@@ -29,11 +29,7 @@ import Sergi.MVC.Model.parse.XMLreadWrite;
  * 
  */
 public class Model {
-	/**
-	 * @uml.property name="arrList"
-	 * @uml.associationEnd multiplicity="(1 1)"
-	 */
-	private ArrayTaskList arrTaskList = new ArrayTaskList();
+
 	private ArrayList<MainFrameObserverInterface> addEditObservers = new ArrayList<MainFrameObserverInterface>();
 	private ArrayList<Task> arrList;
 	private String fileName = "Tasks.xml";
@@ -50,19 +46,24 @@ public class Model {
 		} catch (SAXException e) {
 			throw new ModelException(e);
 		} catch (FileNotFoundException e) {
-			Controller.showErrorMessage("XML file with saved taskList not found. " +
-						"Please, check file \"Task.xml\" in folder with program.");
+			Controller
+					.showErrorMessage("XML file with saved taskList not found. "
+							+ "Please, check file \"Task.xml\" in folder with program.");
 		} catch (IOException e) {
 			throw new ModelException(e);
 		} catch (ParseException e) {
 			throw new ModelException(e);
 		}
-		notifyObservers();
+//		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+		Thread observer = new Thread(new TaskObserver(this));
+//		observer.setPriority(Thread.MAX_PRIORITY);
+		observer.start();
+		notifyObservers(arrList);
 	}
 
 	public void addNewTask(Task task) {
-		arrTaskList.add(task);
-		notifyObservers();
+		arrList.add(task);
+		notifyObservers(arrList);
 	}
 
 	/*
@@ -72,35 +73,37 @@ public class Model {
 
 	public void addTaskArray(Task[] tasks) {
 		for (int i = 0; i < tasks.length; i++) {
-			arrTaskList.add(tasks[i]);
+			arrList.add(tasks[i]);
 		}
-		notifyObservers();
+		notifyObservers(arrList);
 	}
 
 	public void removeTask(Task task) {
-		arrTaskList.remove(task);
-		notifyObservers();
+		arrList.remove(task);
+		notifyObservers(arrList);
 	}
 
-	public ArrayTaskList getArrayTaskList() {
-		return arrTaskList;
+	public Task[] getArrayTaskList() {
+		Task[] taskArray = new Task[arrList.size()];
+		for (int i = 0; i < taskArray.length; i++) {
+			taskArray[i] = arrList.get(i);
+		}
+		return taskArray;
 	}
 
-	public ArrayList<Task> getArrayList() {
-		for (int i = 0; i < arrList.size(); i++)
-			arrList.add(arrTaskList.getTask(i));
+	public ArrayList<Task> getTaskList() {
 		return arrList;
 	}
 
 	public Task getTask(String name) {
-		for (Task task : arrTaskList)
+		for (Task task : arrList)
 			if (task.getTitle().equals(name))
 				return task;
 		return null;
 	}
 
 	public Task getTask(Date date) {
-		for (Task task : arrTaskList)
+		for (Task task : arrList)
 			if (task.getTime().equals(date))
 				return task;
 		return null;
@@ -114,9 +117,9 @@ public class Model {
 		addEditObservers.remove(observer);
 	}
 
-	public void notifyObservers() {
-		for (int i = 0; i < addEditObservers.size(); i++) {
-			addEditObservers.get(i).update();
+	public void notifyObservers(Object value) {
+		for (MainFrameObserverInterface iterable_element : addEditObservers) {
+			iterable_element.update(value);
 		}
 	}
 
@@ -127,7 +130,7 @@ public class Model {
 		return analyzer.parseXMLFile(fileName);
 	}
 
-	public Document writeTasksToFile(Task[] taskArray) {
+	public Document writeTasksToFile(Task[] taskArray) throws ModelException {
 		if (taskArray.length == 0)
 			return null;
 		try {
@@ -141,21 +144,25 @@ public class Model {
 			transformer.transform(source, result);
 
 		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
+			throw new ModelException(e);
 		} catch (TransformerException e) {
-			e.printStackTrace();
+			throw new ModelException(e);
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			throw new ModelException(e);
 		}
-
 		return null;
 	}
 
 	public int getTaskIndex(String taskTitle) {
-		for (int i = 0; i < arrTaskList.size(); i++) {
-			if (taskTitle.equals(arrTaskList.getTask(i).getTitle()))
+		for (int i = 0; i < arrList.size(); i++) {
+			if (taskTitle.equals(arrList.get(i).getTitle()))
 				return i;
 		}
 		return -1;
+	}
+
+	public void itsTimeToTask(Task task) {
+		notifyObservers(task);
+		notifyObservers(arrList);
 	}
 }

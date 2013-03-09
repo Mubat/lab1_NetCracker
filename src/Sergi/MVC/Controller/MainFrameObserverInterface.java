@@ -2,5 +2,6 @@ package Sergi.MVC.Controller;
 
 public interface MainFrameObserverInterface {
 	
-	void update(); 
+	void update(Object value);
+
 }
