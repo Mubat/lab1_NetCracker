@@ -21,14 +21,14 @@
 			<to>24 фев 2013 19:45</to>
 		</date>
 		<repeats>1</repeats>
-		<visibility>true</visibility>
+		<visibility>false</visibility>
 	</task>
 	<task name="2fgfmg">
 		<date>
 			<from>02 мар 2013 19:33</from>
 		</date>
 		<repeats>0</repeats>
-		<visibility>false</visibility>
+		<visibility>true</visibility>
 	</task>
 	<task name="rgthwrth">
 		<date>

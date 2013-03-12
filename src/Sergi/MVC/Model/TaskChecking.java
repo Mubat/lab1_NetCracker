@@ -5,14 +5,13 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-public class TaskObserver implements Runnable {
+public class TaskChecking implements Runnable {
 
 	private int sleepSeconds = 60;
 	private Model model;
 
-	public TaskObserver(Model model) {
+	public TaskChecking(Model model) {
 		this.model = model;
-
 	}
 
 	@Override
