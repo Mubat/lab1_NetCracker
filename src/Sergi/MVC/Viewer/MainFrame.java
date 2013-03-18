@@ -64,12 +64,12 @@ public class MainFrame extends JFrame {
 		
 		this.add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0,
-						5, 0, 5), 0, 0));
+						5, 0, 10), 0, 0));
 		this.add(buttonPanel, new GridBagConstraints(1, 0, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
 						5, 0, 5), 0, 0));
 		this.add(findPanel, new GridBagConstraints(0, 1, 1, 1, 0, 0,
-				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
+				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						5, 0, 5), 0, 0));
 		addFocusListeners();
 
@@ -161,6 +161,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void focusGained(FocusEvent arg0) {
 				jtfFind.setText(enteredData);
+				
 			}
 		});
 	}

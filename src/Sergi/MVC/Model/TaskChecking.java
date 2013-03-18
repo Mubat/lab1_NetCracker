@@ -1,9 +1,8 @@
 package Sergi.MVC.Model;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-
-import javax.swing.JOptionPane;
 
 public class TaskChecking implements Runnable {
 
@@ -12,34 +11,54 @@ public class TaskChecking implements Runnable {
 
 	public TaskChecking(Model model) {
 		this.model = model;
+
 	}
 
 	@Override
 	public void run() {
+		checkArrayTask();
+		timeAdjustment();
+		System.out.println("Start watch.");
 		for (;;) {
-			ArrayList<Task> tasks = model.getTaskList();
-			for (Task task : tasks) {
-				if (!task.isActive())
-					continue;
-				Date presentTime = new Date();
-
-				if (task.nextTimeAfter(presentTime) == null) {
-					if (task.isActive()) {
-						model.itsTimeToTask(task);
-						task.setActive(false);
-					}
-					continue;
-				}
-
-				Date taskTime = task.lastTimeBefore(presentTime);
-				if (taskTime != null && presentTime.after(taskTime)) {
-					model.itsTimeToTask(task);
-				}
-			}
+			checkArrayTask();
 			try {
 				Thread.sleep(1000 * sleepSeconds);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+		}
+	}
+
+	private void timeAdjustment() {
+		long secondsToCorrect = 60 - Calendar.getInstance().get(Calendar.SECOND); 
+		System.out.println(Calendar.getInstance().getTime() + ": "  + secondsToCorrect);
+		checkArrayTask();
+		try {
+			Thread.sleep((secondsToCorrect - 1) * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void checkArrayTask() {
+		ArrayList<Task> tasks = model.getTaskList();
+		System.out.println(tasks.size());
+		for (Task task : tasks) {
+			if (!task.isActive())
+				continue;
+			Date presentTime = new Date();
+
+			if (task.nextTimeAfter(presentTime) == null) {
+				if (task.isActive()) {
+					model.itsTimeToTask(task);
+					task.setActive(false);
+				}
+				continue;
+			}
+
+			Date taskTime = task.lastTimeBefore(presentTime);
+			if (taskTime != null && presentTime.after(taskTime)) {
+				model.itsTimeToTask(task);
 			}
 		}
 	}

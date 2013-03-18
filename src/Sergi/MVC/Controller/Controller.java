@@ -39,8 +39,10 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	 *             if lnf.isSupportedLookAndFeel() is false
 	 */
 	public Controller() throws ModelException {
+		model = new Model();
 		try {
-			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+			UIManager
+					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (ClassNotFoundException e) {
 			throw new ModelException(e);
 		} catch (InstantiationException e) {
@@ -50,15 +52,16 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		} catch (UnsupportedLookAndFeelException e) {
 			throw new ModelException(e);
 		}
-
 		mainFrame = new MainFrame("Диспетчер задач");
 		mainFrame.initComponents();
-		
+		this.update(model.getTaskList());
 		model.registerObserver(this);
 		mainFrame.addActionListener(this);
 		mainFrame.addListSelections(this);
 		
-
+		model.startTaskCheking();
+		mainFrame.setVisible(true);
+		
 	}
 
 	/*
@@ -70,17 +73,14 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	 */
 	public static void main(String[] args) {
 		try {
-			model = new Model();
 			new Controller();
-			model.startCheking();
-			mainFrame.setVisible(true);
 		} catch (ModelException e) {
 			MainFrame.showErrorMessage(mainFrame, e.toString());
 		}
 	}
 
 	public void showAddDialog(int i) {
-		addDialog = new AddEditDialog(mainFrame, true);
+		addDialog = new AddEditDialog(mainFrame, false);
 		if (i == -1) {
 			addDialog.setTask(new Task());
 		} else {
@@ -105,7 +105,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	}
 
 	public void exit() throws ModelException {
-//		model.writeTasksToFile(model.getArrayTaskList());
+		model.writeTasksToFile(model.getArrayTaskList());// включить когда все работает
 		System.exit(0);
 	}
 
@@ -145,6 +145,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 				model.removeTask(taskForEdit);
 			model.addNewTask(addDialog.getTask());
 			addDialog.dispose();
+			model.checkTasks();
 			break;
 		}
 		case BUTTON_NAME_CANCEL_TASK: {
@@ -177,5 +178,4 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	public static void showErrorMessage(String errorString) {
 		MainFrame.showErrorMessage(mainFrame, errorString);
 	}
-
 }

@@ -34,7 +34,8 @@ public class Model {
 	private ArrayList<Task> arrList;
 	private String fileName = "Tasks.xml";
 	private XMLreadWrite analyzer;
-	private Thread checkAllTasks;
+	private TaskChecking taskCheking;
+	private Thread thread;
 
 	public Model() throws ModelException {
 		arrList = new ArrayList<Task>();
@@ -55,9 +56,9 @@ public class Model {
 		} catch (ParseException e) {
 			throw new ModelException(e);
 		}
-		notifyObservers(arrList);
+
+		taskCheking = new TaskChecking(this);
 		
-		checkAllTasks = new Thread(new TaskChecking(this));
 	}
 
 	public void addNewTask(Task task) {
@@ -165,7 +166,12 @@ public class Model {
 		notifyObservers(arrList);
 	}
 	
-	public void startCheking() {
-		checkAllTasks.start();
+	public void startTaskCheking() {
+		thread = new Thread(taskCheking);
+		thread.start();
+	}
+	
+	public void checkTasks() {
+		taskCheking.checkArrayTask();
 	}
 }
