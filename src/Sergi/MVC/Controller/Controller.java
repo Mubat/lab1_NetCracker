@@ -183,7 +183,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			UIManager
 					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (ClassNotFoundException e) {
-			throw new ModelException(e);
+			throw new ModelException(e, "Файл со стилем не найден");
 		} catch (InstantiationException e) {
 			throw new ModelException(e);
 		} catch (IllegalAccessException e) {

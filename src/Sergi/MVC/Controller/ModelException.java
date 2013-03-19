@@ -15,12 +15,18 @@ import org.xml.sax.SAXException;
 public class ModelException extends Exception {
 
 	Exception e = new Exception();
+	String string = "";
 	private static final long serialVersionUID = 4360693429330353093L;
 
 	public ModelException(ClassNotFoundException e) {
 		this.e = e;
 	}
 
+	public ModelException(ClassNotFoundException e, String string) {
+		this.e = e;
+		this.string = string;
+	}
+	
 	public ModelException(InstantiationException e) {
 		this.e = e;
 	}
@@ -73,6 +79,8 @@ public class ModelException extends Exception {
 	 */
 	@Override
 	public String toString() {
+		if(string != "")
+			return "Ошибка! " + string;
 		return getExceptionDetals(e);
 	}
 	
