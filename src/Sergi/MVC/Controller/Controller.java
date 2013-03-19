@@ -41,16 +41,9 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	public Controller() throws ModelException {
 		model = new Model();
 		try {
-			UIManager
-					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		} catch (ClassNotFoundException e) {
-			throw new ModelException(e);
-		} catch (InstantiationException e) {
-			throw new ModelException(e);
-		} catch (IllegalAccessException e) {
-			throw new ModelException(e);
-		} catch (UnsupportedLookAndFeelException e) {
-			throw new ModelException(e);
+			setLookAndFeel();
+		} catch (ModelException e) {
+			MainFrame.showErrorMessage(mainFrame, e.toString());
 		}
 		mainFrame = new MainFrame("Диспетчер задач");
 		mainFrame.initComponents();
@@ -58,10 +51,10 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		model.registerObserver(this);
 		mainFrame.addActionListener(this);
 		mainFrame.addListSelections(this);
-		
+
 		model.startTaskCheking();
 		mainFrame.setVisible(true);
-		
+
 	}
 
 	/*
@@ -105,7 +98,8 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	}
 
 	public void exit() throws ModelException {
-		model.writeTasksToFile(model.getArrayTaskList());// включить когда все работает
+		model.writeTasksToFile(model.getArrayTaskList());// включить когда все
+															// работает
 		System.exit(0);
 	}
 
@@ -177,5 +171,25 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 	public static void showErrorMessage(String errorString) {
 		MainFrame.showErrorMessage(mainFrame, errorString);
+	}
+
+	/**
+	 * This work if using java 1.7
+	 * 
+	 * @throws ModelException
+	 */
+	private static void setLookAndFeel() throws ModelException {
+		try {
+			UIManager
+					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (ClassNotFoundException e) {
+			throw new ModelException(e);
+		} catch (InstantiationException e) {
+			throw new ModelException(e);
+		} catch (IllegalAccessException e) {
+			throw new ModelException(e);
+		} catch (UnsupportedLookAndFeelException e) {
+			throw new ModelException(e);
+		}
 	}
 }

@@ -47,11 +47,11 @@ public class AddEditDialog extends JDialog {
 	private ButtonGroup jRadioVisible;// группа радиокнопок активности задачи
 	private JDateChooser jDateChooserBegin;// выбор даты начала задачи
 	private JDateChooser jDateChooserEnd;// выбор даты окончания задачи
-	private JComboBox<Integer> jHourBegin;// выбор времени начала задачи
-	private JComboBox<Integer> jHourEnd;// выбор времени окончания задачи
+	private JComboBox jHourBegin;// выбор времени начала задачи
+	private JComboBox jHourEnd;// выбор времени окончания задачи
 	private JTextField jTaskName;// наименование задачи
-	private JComboBox<Integer> jMinuteBegin;
-	private JComboBox<Integer> jMinuteEnd;
+	private JComboBox jMinuteBegin;
+	private JComboBox jMinuteEnd;
 
 	private static JButton jAddButton;// кнопка добавления новой задачи
 	private static JButton jCancelButton;// кнопка отмены
@@ -171,11 +171,11 @@ public class AddEditDialog extends JDialog {
 		this.add(jDateChooserBegin, new GridBagConstraints(2, 1, 1, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
 						5, 5, 5, 5), 5, 0));
-		jHourBegin = new JComboBox<Integer>(hours);
+		jHourBegin = new JComboBox(hours);
 		this.add(jHourBegin, new GridBagConstraints(3, 1, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						5, 5, 0), 0, 0));
-		jMinuteBegin = new JComboBox<Integer>(minutes);
+		jMinuteBegin = new JComboBox(minutes);
 		this.add(jMinuteBegin, new GridBagConstraints(4, 1, 1, 1, 0, 0,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5,
 						0, 5, 10), 0, 0));
@@ -188,11 +188,11 @@ public class AddEditDialog extends JDialog {
 		this.add(jDateChooserEnd, new GridBagConstraints(2, 2, 1, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
 						5, 5, 5, 5), 5, 0));
-		jHourEnd = new JComboBox<Integer>(hours);
+		jHourEnd = new JComboBox(hours);
 		this.add(jHourEnd, new GridBagConstraints(3, 2, 1, 1, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						5, 5, 0), 0, 0));
-		jMinuteEnd = new JComboBox<Integer>(minutes);
+		jMinuteEnd = new JComboBox(minutes);
 		this.add(jMinuteEnd, new GridBagConstraints(4, 2, 1, 1, 0, 0,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5,
 						0, 5, 10), 0, 0));

@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class MainFrame extends JFrame {
 	private JButton jReplaceButton;
 	private JButton jRemoveButton;
 	private JButton jExitButton;
-	private JList<Object> jList;// список задач
+	private JList jList;// список задач
 	private JButton jFindButton;
 	private JTextField jtfFind;
 
@@ -83,7 +84,7 @@ public class MainFrame extends JFrame {
 		panel.add(text, new GridBagConstraints(0, 0, 3, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0,
 						5, 0, 5), 0, 0));
-		jList = new JList<Object>();
+		jList = new JList();
 		panel.add(jList, new GridBagConstraints(0, 1, 3, 4, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,
 						5, 5, 5), 0, 0));
@@ -192,7 +193,7 @@ public class MainFrame extends JFrame {
 	}
 
 	public List<Object> getSelectasValuesList() {
-		return jList.getSelectedValuesList();
+		return Arrays.asList(jList.getSelectedValues());
 	}
 
 	public void setButtonEnabled(String buttonName, boolean b) {

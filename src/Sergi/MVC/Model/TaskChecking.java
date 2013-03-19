@@ -18,7 +18,6 @@ public class TaskChecking implements Runnable {
 	public void run() {
 		checkArrayTask();
 		timeAdjustment();
-		System.out.println("Start watch.");
 		for (;;) {
 			checkArrayTask();
 			try {
@@ -31,7 +30,6 @@ public class TaskChecking implements Runnable {
 
 	private void timeAdjustment() {
 		long secondsToCorrect = 60 - Calendar.getInstance().get(Calendar.SECOND); 
-		System.out.println(Calendar.getInstance().getTime() + ": "  + secondsToCorrect);
 		checkArrayTask();
 		try {
 			Thread.sleep((secondsToCorrect - 1) * 1000);
@@ -42,7 +40,6 @@ public class TaskChecking implements Runnable {
 	
 	public void checkArrayTask() {
 		ArrayList<Task> tasks = model.getTaskList();
-		System.out.println(tasks.size());
 		for (Task task : tasks) {
 			if (!task.isActive())
 				continue;
