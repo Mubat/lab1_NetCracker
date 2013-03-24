@@ -35,6 +35,8 @@ public class AddEditDialog extends JDialog {
 
 	private static final long serialVersionUID = 1630046389235533533L;
 
+	private static final String DEFAULT_WINDOW_NAME = "Новая задача";
+
 	private static Integer[] hours = new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8,
 			9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
 	private static Integer[] minutes = new Integer[] { 
@@ -60,17 +62,23 @@ public class AddEditDialog extends JDialog {
 	private JRadioButton jRadioNo;
 
 	// =============================================================================
+	
 	/**
 	 * @param owner
 	 *            - the owner Dialog from which the dialog is displayed or null
 	 *            if this dialog has no owner
+	 * @param windowName name of Dialog window
 	 * @param rootPaneCheckingEnabled
 	 *            If true then calls to add and setLayout will be forwarded to
 	 *            the contentPane.
 	 */
-	public AddEditDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
-		super(owner, rootPaneCheckingEnabled);
+	public AddEditDialog(JFrame owner, String windowName, boolean rootPaneCheckingEnabled) {
+		super(owner, windowName, rootPaneCheckingEnabled);
 		initComponents();
+	}
+
+	public AddEditDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
+		this(owner, DEFAULT_WINDOW_NAME, rootPaneCheckingEnabled);
 	}
 
 	// -----------------------------------------------------------------------------
@@ -117,7 +125,9 @@ public class AddEditDialog extends JDialog {
 				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 		// Кнопки добавления/редактирования задачи и отмены
-		jAddButton = new JButton(ButtonNames.BUTTON_NAME_ADD_TASK.getTypeValue());
+		jAddButton = new JButton(this.getName() == DEFAULT_WINDOW_NAME ? 
+				ButtonNames.BUTTON_NAME_ADD_TASK.getTypeValue() : 
+				ButtonNames.BUTTON_NAME_EDIT_TASK.getTypeValue());
 		jAddButton.setPreferredSize(new Dimension(180, 50));
 		this.add(jAddButton, new GridBagConstraints(1, 5, 2, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(

@@ -57,13 +57,6 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 	}
 
-	/*
-	 * При редактировании задачи создается новая задача с пустым полем имени, а
-	 * старая задача остается неизменной.
-	 * 
-	 * Как-то надо подправи ть TaskObserver. Время сна может быть и в конце
-	 * мекущей минуты.
-	 */
 	public static void main(String[] args) {
 		try {
 			new Controller();
@@ -73,7 +66,6 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	}
 
 	public void showAddDialog(int i) {
-		addDialog = new AddEditDialog(mainFrame, false);
 		if (i == -1) {
 			addDialog.setTask(new Task());
 		} else {
@@ -108,11 +100,14 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		ButtonNames buttonName = ButtonNames.getType(event.getActionCommand());
 		switch (buttonName) {
 		case BUTTON_NAME_ADD_DIALOG: {
+			addDialog = new AddEditDialog(mainFrame, false);
 			this.showAddDialog(-1);
 			break;
 		}
 		case BUTTON_NAME_REPALCE: {
 			if (mainFrame.getSelectedIndicies().length == 1) {
+				addDialog = new AddEditDialog(mainFrame, "Изменить задачу "
+						+ model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), false);
 				this.showAddDialog(mainFrame.getSelectedIndex());
 			} else
 				showErrorMessage("Выбрано больше одного объекта для изменения!");

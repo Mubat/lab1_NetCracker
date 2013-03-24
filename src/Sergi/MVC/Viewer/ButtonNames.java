@@ -10,6 +10,7 @@ public enum ButtonNames {
 	BUTTON_NAME_FIND("Найти задачу"),
 	
 	BUTTON_NAME_ADD_TASK("Добавить задачу"),
+	BUTTON_NAME_EDIT_TASK("Изменить задачу"),
 	BUTTON_NAME_CANCEL_TASK("Отмена");
 
 	private String buttonName;

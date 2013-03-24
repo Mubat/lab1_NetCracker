@@ -174,4 +174,8 @@ public class Model {
 	public void checkTasks() {
 		taskCheking.checkArrayTask();
 	}
+
+	public Task getTaskIndex(int selectedIndex) {
+		return arrList.get(selectedIndex);
+	}
 }
