@@ -99,13 +99,13 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	 */
 	private void setWindowEvent(ActionEvent e) {
 		String buttonName = e.getActionCommand();
-		System.out.println(e.getSource());
+		System.out.println("\""+ButtonNames.BUTTON_NAME_EDIT_TASK + "\"");
 //		System.out.println("Before: "+ addEditDialog + "\n" + e.getSource());
-		if(ButtonNames.BUTTON_NAME_ADD_TASK.equals(buttonName)  ||
-		   ButtonNames.BUTTON_NAME_EDIT_TASK.equals(buttonName) ||
-		   ButtonNames.BUTTON_NAME_CANCEL_TASK.equals(buttonName)) {
+		if(ButtonNames.BUTTON_NAME_ADD_TASK.getTypeValue().equals(buttonName)  ||
+		   ButtonNames.BUTTON_NAME_EDIT_TASK.getTypeValue().equals(buttonName) ||
+		   ButtonNames.BUTTON_NAME_CANCEL_TASK.getTypeValue().equals(buttonName)) {
+			System.out.println("Test");
 			addEditDialog = (TaskDialog) e.getSource(); // здесь не хочет перетираться ссылка. Остается последней, которая создалась.
-			
 		}
 //		System.out.println("After: "+addEditDialog);
 	}
@@ -172,7 +172,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	private class ActionHandler {
 
 		public void addDialog(){
-			addEditDialog = new TaskDialog(mainFrame, Integer.toString(i++), false);
+			addEditDialog = new TaskDialog(mainFrame, false);
 			addEditDialog.setTask(new Task());
 			addEditDialog.addActionListener(Controller.this);
 			addEditDialog.setVisible(true);
@@ -218,7 +218,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		public void editDialog(){
 			if (mainFrame.getSelectedIndicies().length == 1) {
 				addEditDialog = new TaskDialog(
-						mainFrame,Integer.toString(i++)+ " Изменить задачу " + model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), 
+						mainFrame,"Изменить задачу " + model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), 
 						false);
 				addEditDialog.setTask(model.getTaskList().get(mainFrame.getSelectedIndex()));
 				addEditDialog.addActionListener(Controller.this);
