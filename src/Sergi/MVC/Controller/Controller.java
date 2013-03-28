@@ -14,7 +14,7 @@ import javax.swing.event.ListSelectionListener;
 
 import Sergi.MVC.Model.Model;
 import Sergi.MVC.Model.Task;
-import Sergi.MVC.Viewer.AddEditDialog;
+import Sergi.MVC.Viewer.TaskDialog;
 import Sergi.MVC.Viewer.ButtonNames;
 import Sergi.MVC.Viewer.MainFrame;
 
@@ -25,7 +25,8 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	private static Model model;
 	private static MainFrame mainFrame;
 	private Task taskForEdit;
-	private AddEditDialog addEditDialog;
+	private TaskDialog addEditDialog;
+	public int i;
 
 	/**
 	 * 
@@ -67,13 +68,13 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 	public void showAddDialog(int i) {
 		if (i == -1) {
-			getWindowEvent().setTask(new Task());
+			addEditDialog.setTask(new Task());
 		} else {
 			taskForEdit = model.getTaskList().get(i);
-			getWindowEvent().setTask(taskForEdit);
+			addEditDialog.setTask(taskForEdit);
 		}
-		getWindowEvent().addListeners(this);
-		getWindowEvent().setVisible(true);
+		addEditDialog.addActionListener(this);
+		addEditDialog.setVisible(true);
 
 	}
 
@@ -84,107 +85,29 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	}
 
 	public void removeTask(List<Object> list) {
-		for (Object task : list) {
-			model.removeTask((Task) task);
-		}
+		
 	}
 
-	public void exit() throws ModelException {
-		model.writeTasksToFile(model.getArrayTaskList());// включить когда все
-															// работает
+	public void storeTasks() throws ModelException {
+		model.writeTasksToFile(model.getArrayTaskList());
 		System.exit(0);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent event) {
-		String actionCommand = event.getActionCommand();
-		ButtonNames buttonName = ButtonNames.getType(actionCommand);
-		
-		if(ButtonNames.BUTTON_NAME_ADD_TASK.equals(actionCommand) &&
-				ButtonNames.BUTTON_NAME_REPALCE.equals(actionCommand))
-			setWindowEvent(event);
-		
-		switch (buttonName) {
-		case BUTTON_NAME_ADD_DIALOG: {
-			addEditDialog = new AddEditDialog(mainFrame, false);
-			this.showAddDialog(-1);
-			break;
-		}
-		case BUTTON_NAME_REPALCE: {
-			if (mainFrame.getSelectedIndicies().length == 1) {
-				addEditDialog = new AddEditDialog(mainFrame, "Изменить задачу "
-						+ model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), false);
-				this.showAddDialog(mainFrame.getSelectedIndex());
-			} else
-				showErrorMessage("Выбрано больше одного объекта для изменения!");
-			break;
-		}
-		case BUTTON_NAME_REMOVE: {
-			this.removeTask(mainFrame.getSelectasValuesList());
-			break;
-		}
-		case BUTTON_NAME_EXIT: {
-			try {
-				this.exit();
-			} catch (ModelException e) {
-				MainFrame.showErrorMessage(mainFrame, e.getMessage());
-			}
-			break;
-		}
-		case BUTTON_NAME_FIND: {
-			this.findTaskIndex(mainFrame.getFindString());
-			break;
-		}
-		case BUTTON_NAME_ADD_TASK: {
-			Task task = getWindowEvent().getTask();
-			
-			if (model.contains(task)) {
-				showErrorMessage("Задача уже есть в списке");
-				break;
-			}
-			model.addNewTask(getWindowEvent().getTask());
-			getWindowEvent().dispose();
-			model.checkTasks();
-			break;
-		}
-		case BUTTON_NAME_EDIT_TASK: {
-			if (taskForEdit != null &&	model.getTaskList().contains(taskForEdit))
-				model.removeTask(taskForEdit);
-
-			model.addNewTask(getWindowEvent().getTask());
-			getWindowEvent().dispose();
-			model.checkTasks();
-			break;
-		}
-		case BUTTON_NAME_CANCEL_TASK: {
-			getWindowEvent().dispose();
-			break;
-		}
-		default: {
-			showErrorMessage("Неизвестное название команды: " + buttonName);
-		}
-		}
-
-		mainFrame.setVisible(false);
-		mainFrame.repaint();
-		mainFrame.setVisible(true);
-	}
-	
 	/**
 	 * @author Pochkun Taras
 	 * @param e
 	 */
 	private void setWindowEvent(ActionEvent e) {
-		addEditDialog = (AddEditDialog) e.getSource();
-	}
-	
-	/**
-	 * @author Pochkun Taras
-	 * @param e
-	 */
-
-	private AddEditDialog getWindowEvent() {
-		return addEditDialog;
+		String buttonName = e.getActionCommand();
+		System.out.println(e.getSource());
+//		System.out.println("Before: "+ addEditDialog + "\n" + e.getSource());
+		if(ButtonNames.BUTTON_NAME_ADD_TASK.equals(buttonName)  ||
+		   ButtonNames.BUTTON_NAME_EDIT_TASK.equals(buttonName) ||
+		   ButtonNames.BUTTON_NAME_CANCEL_TASK.equals(buttonName)) {
+			addEditDialog = (TaskDialog) e.getSource(); // здесь не хочет перетираться ссылка. Остается последней, которая создалась.
+			
+		}
+//		System.out.println("After: "+addEditDialog);
 	}
 	
 	@Override
@@ -192,9 +115,10 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		if (value instanceof Task)
 			JOptionPane.showMessageDialog(null, "It`s time for task \""
 					+ ((Task) value).getTitle() + "\".",
-					((Task) value).getTitle(), JOptionPane.DEFAULT_OPTION);
+					  ((Task) value).getTitle(), JOptionPane.DEFAULT_OPTION);
 		else if (value instanceof ArrayList<?>)
 			mainFrame.updateList(model.getArrayTaskList());
+		else showErrorMessage("Unexpectable type.");
 	}
 
 	@Override
@@ -207,11 +131,6 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		MainFrame.showErrorMessage(mainFrame, errorString);
 	}
 
-	/**
-	 * This work if using java 1.7
-	 * 
-	 * @throws ModelException
-	 */
 	private static void setLookAndFeel() throws ModelException {
 		try {
 			UIManager.setLookAndFeel(
@@ -226,5 +145,96 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			throw new ModelException(e);
 		}
 	}
+	
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		setWindowEvent(event);
+		String actionCommand = event.getActionCommand();
+		ButtonNames buttonName = ButtonNames.getType(actionCommand);
+		ActionHandler handler = this.new ActionHandler();
+		
+		switch (buttonName) {
+		case BUTTON_NAME_ADD_DIALOG: 	handler.addDialog(); break;
+		case BUTTON_NAME_REPALCE: 		handler.editDialog(); break;
+		case BUTTON_NAME_REMOVE: 		handler.remove(); break; 
+		case BUTTON_NAME_EXIT: 			handler.exit();	break;
+		case BUTTON_NAME_FIND: 			handler.find(); break;
+		case BUTTON_NAME_ADD_TASK: 		handler.addTask(); break;
+		case BUTTON_NAME_EDIT_TASK: 	handler.editTask();	break;
+		case BUTTON_NAME_CANCEL_TASK: 	handler.cancel(); break;
+		default: 						showErrorMessage("Неизвестное название команды: " + buttonName);
+		}
+//		mainFrame.setVisible(false);
+//		mainFrame.repaint();
+//		mainFrame.setVisible(true);
+	}
+	
+	private class ActionHandler {
 
+		public void addDialog(){
+			addEditDialog = new TaskDialog(mainFrame, Integer.toString(i++), false);
+			addEditDialog.setTask(new Task());
+			addEditDialog.addActionListener(Controller.this);
+			addEditDialog.setVisible(true);
+		}
+		
+		public void cancel() {
+//			System.out.println("TEst");
+			addEditDialog.dispose();
+		}
+
+		public void editTask() {
+			if (taskForEdit != null &&	model.getTaskList().contains(taskForEdit))
+				model.removeTask(taskForEdit);
+
+			model.addNewTask(addEditDialog.getTask());
+			addEditDialog.dispose();
+			model.checkTasks();
+		}
+
+		public void addTask() {
+			Task task = addEditDialog.getTask();
+			
+			if (model.contains(task)) {
+				showErrorMessage("Задача уже есть в списке");
+				return;
+			}
+			model.addNewTask(addEditDialog.getTask());
+			addEditDialog.dispose();
+			model.checkTasks();
+			
+		}
+
+		public void find() {
+			findTaskIndex(mainFrame.getFindString());
+		}
+
+		public void remove() {
+			for (Object task : mainFrame.getSelectasValuesList()) {
+				model.removeTask((Task) task);
+			}
+		}
+
+		public void editDialog(){
+			if (mainFrame.getSelectedIndicies().length == 1) {
+				addEditDialog = new TaskDialog(
+						mainFrame,Integer.toString(i++)+ " Изменить задачу " + model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), 
+						false);
+				addEditDialog.setTask(model.getTaskList().get(mainFrame.getSelectedIndex()));
+				addEditDialog.addActionListener(Controller.this);
+				addEditDialog.setVisible(true);
+			} else
+				showErrorMessage("Выбрано больше одного объекта для изменения!");
+		}
+		
+		public void exit(){
+			
+			try {
+				storeTasks();
+			} catch (ModelException e) {
+				MainFrame.showErrorMessage(mainFrame, e.getMessage());
+			}
+		}
+		
+	}
 }

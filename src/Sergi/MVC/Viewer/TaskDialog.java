@@ -6,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
@@ -27,11 +28,12 @@ import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import Sergi.MVC.Controller.ActionListenerTM;
 import Sergi.MVC.Model.Task;
 
 import com.toedter.calendar.JDateChooser;
 
-public class AddEditDialog extends JDialog {
+public class TaskDialog extends JDialog {
 
 	private static final long serialVersionUID = 1630046389235533533L;
 
@@ -61,6 +63,8 @@ public class AddEditDialog extends JDialog {
 	private JRadioButton jRadioYes;
 	private JRadioButton jRadioNo;
 
+	private ActionListener listener;
+
 	// =============================================================================
 	
 	/**
@@ -72,12 +76,13 @@ public class AddEditDialog extends JDialog {
 	 *            If true then calls to add and setLayout will be forwarded to
 	 *            the contentPane.
 	 */
-	public AddEditDialog(JFrame owner, String windowName, boolean rootPaneCheckingEnabled) {
+	public TaskDialog(JFrame owner, String windowName, boolean rootPaneCheckingEnabled) {
 		super(owner, windowName, rootPaneCheckingEnabled);
+		this.setName(windowName);
 		initComponents();
 	}
 
-	public AddEditDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
+	public TaskDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
 		this(owner, DEFAULT_WINDOW_NAME, rootPaneCheckingEnabled);
 	}
 
@@ -236,9 +241,14 @@ public class AddEditDialog extends JDialog {
 	/**
 	 * Метод объявления слушателей для кнопок
 	 */
-	public void addListeners(ActionListener listener) {
-		jCancelButton.addActionListener(listener);
-		jAddButton.addActionListener(listener);
+	public void addActionListener(ActionListener listener) {
+		this.listener = listener;
+		jAddButton.addActionListener	(new ActionListenerTM(this, 0, listener));
+		jCancelButton.addActionListener (new ActionListenerTM(this, 0, listener));
+	}
+	
+	private void setListener() {
+		jAddButton.addActionListener(new ActionListenerTM(this, 0));
 	}
 
 	// -----------------------------------------------------------------------------

@@ -22,7 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionListener;
 
-public class MainFrame extends JFrame {
+import Sergi.MVC.Controller.ActionListenerTM;
+
+public class MainFrame extends JFrame  {
 
 	private static final long serialVersionUID = 1L;
 
@@ -132,13 +134,14 @@ public class MainFrame extends JFrame {
 	 * 
 	 * @param listener ActionListener & ListSelectionListener
 	 */
-	public void addActionListener(EventListener listener) {
-		jAddButton.addActionListener((ActionListener) listener);
-		jReplaceButton.addActionListener((ActionListener) listener);
-		jRemoveButton.addActionListener((ActionListener) listener);
-		jExitButton.addActionListener((ActionListener) listener);
-		jtfFind.addActionListener((ActionListener) listener);
-		jFindButton.addActionListener((ActionListener) listener);
+	public void addActionListener(ActionListener listener) {
+		jAddButton.addActionListener	(new ActionListenerTM(this, 0, listener));
+		jReplaceButton.addActionListener(new ActionListenerTM(this, 0, listener));
+		jRemoveButton.addActionListener (new ActionListenerTM(this, 0, listener));
+		jExitButton.addActionListener	(new ActionListenerTM(this, 0, listener));
+//		jtfFind.addActionListener		(new ActionListenerTM(this, 0, listener));
+		jFindButton.addActionListener	(new ActionListenerTM(this, 0, listener));
+		
 		jList.addListSelectionListener((ListSelectionListener) listener);
 	}
 	
