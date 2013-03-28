@@ -25,7 +25,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	private static Model model;
 	private static MainFrame mainFrame;
 	private Task taskForEdit;
-	private AddEditDialog addDialog;
+	private AddEditDialog addEditDialog;
 
 	/**
 	 * 
@@ -67,13 +67,13 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 	public void showAddDialog(int i) {
 		if (i == -1) {
-			addDialog.setTask(new Task());
+			getWindowEvent().setTask(new Task());
 		} else {
 			taskForEdit = model.getTaskList().get(i);
-			addDialog.setTask(taskForEdit);
+			getWindowEvent().setTask(taskForEdit);
 		}
-		addDialog.addListeners(this);
-		addDialog.setVisible(true);
+		getWindowEvent().addListeners(this);
+		getWindowEvent().setVisible(true);
 
 	}
 
@@ -97,16 +97,22 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		ButtonNames buttonName = ButtonNames.getType(event.getActionCommand());
+		String actionCommand = event.getActionCommand();
+		ButtonNames buttonName = ButtonNames.getType(actionCommand);
+		
+		if(ButtonNames.BUTTON_NAME_ADD_TASK.equals(actionCommand) &&
+				ButtonNames.BUTTON_NAME_REPALCE.equals(actionCommand))
+			setWindowEvent(event);
+		
 		switch (buttonName) {
 		case BUTTON_NAME_ADD_DIALOG: {
-			addDialog = new AddEditDialog(mainFrame, false);
+			addEditDialog = new AddEditDialog(mainFrame, false);
 			this.showAddDialog(-1);
 			break;
 		}
 		case BUTTON_NAME_REPALCE: {
 			if (mainFrame.getSelectedIndicies().length == 1) {
-				addDialog = new AddEditDialog(mainFrame, "Изменить задачу "
+				addEditDialog = new AddEditDialog(mainFrame, "Изменить задачу "
 						+ model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), false);
 				this.showAddDialog(mainFrame.getSelectedIndex());
 			} else
@@ -130,16 +136,32 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			break;
 		}
 		case BUTTON_NAME_ADD_TASK: {
-			if (taskForEdit != null)
+			Task task = getWindowEvent().getTask();
+			
+			if (model.contains(task)) {
+				showErrorMessage("Задача уже есть в списке");
+				break;
+			}
+			model.addNewTask(getWindowEvent().getTask());
+			getWindowEvent().dispose();
+			model.checkTasks();
+			break;
+		}
+		case BUTTON_NAME_EDIT_TASK: {
+			if (taskForEdit != null &&	model.getTaskList().contains(taskForEdit))
 				model.removeTask(taskForEdit);
-			model.addNewTask(addDialog.getTask());
-			addDialog.dispose();
+
+			model.addNewTask(getWindowEvent().getTask());
+			getWindowEvent().dispose();
 			model.checkTasks();
 			break;
 		}
 		case BUTTON_NAME_CANCEL_TASK: {
-			addDialog.dispose();
+			getWindowEvent().dispose();
 			break;
+		}
+		default: {
+			showErrorMessage("Неизвестное название команды: " + buttonName);
 		}
 		}
 
@@ -147,7 +169,24 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		mainFrame.repaint();
 		mainFrame.setVisible(true);
 	}
+	
+	/**
+	 * @author Pochkun Taras
+	 * @param e
+	 */
+	private void setWindowEvent(ActionEvent e) {
+		addEditDialog = (AddEditDialog) e.getSource();
+	}
+	
+	/**
+	 * @author Pochkun Taras
+	 * @param e
+	 */
 
+	private AddEditDialog getWindowEvent() {
+		return addEditDialog;
+	}
+	
 	@Override
 	public void update(Object value) {
 		if (value instanceof Task)
@@ -175,8 +214,8 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	 */
 	private static void setLookAndFeel() throws ModelException {
 		try {
-			UIManager
-					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+			UIManager.setLookAndFeel(
+					UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException e) {
 			throw new ModelException(e, "Файл со стилем не найден");
 		} catch (InstantiationException e) {
@@ -187,4 +226,5 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			throw new ModelException(e);
 		}
 	}
+
 }

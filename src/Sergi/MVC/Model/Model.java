@@ -178,4 +178,12 @@ public class Model {
 	public Task getTaskIndex(int selectedIndex) {
 		return arrList.get(selectedIndex);
 	}
+
+	public boolean contains(Task chekingTask) {
+		for (Task task : arrList) {
+			if(task.equals(chekingTask))
+				return true;
+		}
+		return false;
+	}
 }
