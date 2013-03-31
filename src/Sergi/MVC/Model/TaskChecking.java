@@ -1,8 +1,8 @@
 package Sergi.MVC.Model;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 
 public class TaskChecking implements Runnable {
 
@@ -16,10 +16,10 @@ public class TaskChecking implements Runnable {
 
 	@Override
 	public void run() {
-		checkArrayTask();
+	    model.itsTimeToTask(checkTasks());
 		timeAdjustment();
 		for (;;) {
-			checkArrayTask();
+			model.itsTimeToTask(checkTasks());
 			try {
 				Thread.sleep(1000 * sleepSeconds);
 			} catch (InterruptedException e) {
@@ -30,7 +30,7 @@ public class TaskChecking implements Runnable {
 
 	private void timeAdjustment() {
 		long secondsToCorrect = 60 - Calendar.getInstance().get(Calendar.SECOND); 
-		checkArrayTask();
+		checkTasks();
 		try {
 			Thread.sleep((secondsToCorrect - 1) * 1000);
 		} catch (InterruptedException e) {
@@ -38,25 +38,26 @@ public class TaskChecking implements Runnable {
 		}
 	}
 	
-	public void checkArrayTask() {
-		ArrayList<Task> tasks = model.getTaskList();
-		for (Task task : tasks) {
+	public LinkedList<Task> checkTasks() {
+		LinkedList<Task> onsetTasks = new LinkedList<Task>();
+		for (Task task : model.getTaskList()) {
 			if (!task.isActive())
 				continue;
 			Date presentTime = new Date();
 
 			if (task.nextTimeAfter(presentTime) == null) {
 				if (task.isActive()) {
-					model.itsTimeToTask(task);
-					task.setActive(false);
+//					task.setActive(false);
+					onsetTasks.add(task);
 				}
 				continue;
 			}
 
 			Date taskTime = task.lastTimeBefore(presentTime);
 			if (taskTime != null && presentTime.after(taskTime)) {
-				model.itsTimeToTask(task);
+				onsetTasks.add(task);
 			}
 		}
+		return onsetTasks;
 	}
 }

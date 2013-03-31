@@ -2,11 +2,16 @@ package Sergi.MVC.Controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
@@ -14,12 +19,13 @@ import javax.swing.event.ListSelectionListener;
 
 import Sergi.MVC.Model.Model;
 import Sergi.MVC.Model.Task;
-import Sergi.MVC.Viewer.TaskDialog;
 import Sergi.MVC.Viewer.ButtonNames;
+import Sergi.MVC.Viewer.InformDialog;
 import Sergi.MVC.Viewer.MainFrame;
+import Sergi.MVC.Viewer.TaskDialog;
 
-public class Controller implements ActionListener, MainFrameObserverInterface,
-		ListSelectionListener {
+public class Controller extends WindowAdapter implements ActionListener, MainFrameObserverInterface,
+		ListSelectionListener, WindowListener {
 
 	static SimpleDateFormat sdf;
 	private static Model model;
@@ -27,6 +33,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	private Task taskForEdit;
 	private TaskDialog addEditDialog;
 	public int i;
+    private InformDialog informFrame;
 
 	/**
 	 * 
@@ -47,13 +54,14 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			MainFrame.showErrorMessage(mainFrame, e.toString());
 		}
 		mainFrame = new MainFrame("Диспетчер задач");
-		mainFrame.initComponents();
 		this.update(model.getTaskList());
 		model.registerObserver(this);
 		mainFrame.addActionListener(this);
 		mainFrame.addListSelections(this);
-
+		mainFrame.addWindowListener(this);
 		model.startTaskCheking();
+		mainFrame.pack();
+		mainFrame.setMinimumSize(mainFrame.getSize());
 		mainFrame.setVisible(true);
 
 	}
@@ -66,7 +74,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		}
 	}
 
-	public void showAddDialog(int i) {
+/*	public void showAddDialog(int i) {
 		if (i == -1) {
 			addEditDialog.setTask(new Task());
 		} else {
@@ -77,7 +85,7 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		addEditDialog.setVisible(true);
 
 	}
-
+*/
 	public void findTaskIndex(String text) {
 		int findedTaskInList = model.getTaskIndex(text);
 		if (findedTaskInList != -1)
@@ -99,26 +107,40 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 	 */
 	private void setWindowEvent(ActionEvent e) {
 		String buttonName = e.getActionCommand();
-		System.out.println("\""+ButtonNames.BUTTON_NAME_EDIT_TASK + "\"");
-//		System.out.println("Before: "+ addEditDialog + "\n" + e.getSource());
+
 		if(ButtonNames.BUTTON_NAME_ADD_TASK.getTypeValue().equals(buttonName)  ||
 		   ButtonNames.BUTTON_NAME_EDIT_TASK.getTypeValue().equals(buttonName) ||
 		   ButtonNames.BUTTON_NAME_CANCEL_TASK.getTypeValue().equals(buttonName)) {
-			System.out.println("Test");
-			addEditDialog = (TaskDialog) e.getSource(); // здесь не хочет перетираться ссылка. Остается последней, которая создалась.
+		    addEditDialog = (TaskDialog) e.getSource(); 
 		}
-//		System.out.println("After: "+addEditDialog);
+		
+		if(ButtonNames.BUTTON_NAME_DEACTIVATE.getTypeValue().equals(buttonName) ||
+		   ButtonNames.BUTTON_NAME_SET_ASIDE.getTypeValue().equals(buttonName)) {
+		    informFrame = (InformDialog) e.getSource();
+		}
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public void update(Object value) {
-		if (value instanceof Task)
-			JOptionPane.showMessageDialog(null, "It`s time for task \""
-					+ ((Task) value).getTitle() + "\".",
-					  ((Task) value).getTitle(), JOptionPane.DEFAULT_OPTION);
+		//здесь в обоих случаях передается ArrayList 
+		if (value instanceof LinkedList<?>)
+			info((LinkedList<Task>) value);
 		else if (value instanceof ArrayList<?>)
 			mainFrame.updateList(model.getArrayTaskList());
 		else showErrorMessage("Unexpectable type.");
+	}
+
+	private void info(LinkedList<Task> values) {
+	    if(informFrame == null) {
+	        informFrame = new InformDialog(mainFrame, false, values);
+	        informFrame.addActionListener(this);
+	        informFrame.setVisible(true);
+	    }
+	    for (Task task : values) {
+            informFrame.addElement(task);
+        }
+	    update(model.getTaskList());
 	}
 
 	@Override
@@ -146,6 +168,15 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		}
 	}
 	
+    public void windowClosing(WindowEvent event) {
+        try {
+            this.storeTasks();
+        } catch (ModelException e) {
+            showErrorMessage(e.toString());
+        }
+        event.getWindow().dispose();
+    }
+	
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		setWindowEvent(event);
@@ -154,15 +185,17 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 		ActionHandler handler = this.new ActionHandler();
 		
 		switch (buttonName) {
-		case BUTTON_NAME_ADD_DIALOG: 	handler.addDialog(); break;
-		case BUTTON_NAME_REPALCE: 		handler.editDialog(); break;
-		case BUTTON_NAME_REMOVE: 		handler.remove(); break; 
-		case BUTTON_NAME_EXIT: 			handler.exit();	break;
-		case BUTTON_NAME_FIND: 			handler.find(); break;
-		case BUTTON_NAME_ADD_TASK: 		handler.addTask(); break;
-		case BUTTON_NAME_EDIT_TASK: 	handler.editTask();	break;
-		case BUTTON_NAME_CANCEL_TASK: 	handler.cancel(); break;
-		default: 						showErrorMessage("Неизвестное название команды: " + buttonName);
+		case BUTTON_NAME_ADD_DIALOG:  handler.addDialog(); break;
+		case BUTTON_NAME_REPALCE:     handler.editDialog(); break;
+		case BUTTON_NAME_REMOVE:      handler.remove(); break; 
+		case BUTTON_NAME_EXIT:        handler.exit();	break;
+		case BUTTON_NAME_FIND:        handler.find(); break;
+		case BUTTON_NAME_ADD_TASK:    handler.addTask(); break;
+		case BUTTON_NAME_EDIT_TASK:   handler.editTask();	break;
+		case BUTTON_NAME_CANCEL_TASK: handler.cancel(); break;
+		case BUTTON_NAME_SET_ASIDE:   handler.setAside(); break;
+		case BUTTON_NAME_DEACTIVATE:  handler.deactivate(); break;
+        default: 						showErrorMessage("Неизвестное название команды: " + buttonName);
 		}
 //		mainFrame.setVisible(false);
 //		mainFrame.repaint();
@@ -177,17 +210,26 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 			addEditDialog.addActionListener(Controller.this);
 			addEditDialog.setVisible(true);
 		}
-		
-		public void cancel() {
+
+        private void checkInformFrame(Task task) {
+            informFrame.removeElement(task);
+            if(informFrame.isEmpty()) {
+                informFrame.dispose();
+                informFrame = null;
+            }
+        }
+
+        public void cancel() {
 //			System.out.println("TEst");
 			addEditDialog.dispose();
 		}
 
 		public void editTask() {
-			if (taskForEdit != null &&	model.getTaskList().contains(taskForEdit))
-				model.removeTask(taskForEdit);
-
-			model.addNewTask(addEditDialog.getTask());
+		    if(model.getTaskList().contains(addEditDialog.getTask())) {
+		        showErrorMessage("Задача уже присутствует в списке");
+		        return;
+		    } 
+			model.replaceTask(taskForEdit, addEditDialog.getTask());
 			addEditDialog.dispose();
 			model.checkTasks();
 		}
@@ -220,7 +262,8 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 				addEditDialog = new TaskDialog(
 						mainFrame,"Изменить задачу " + model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), 
 						false);
-				addEditDialog.setTask(model.getTaskList().get(mainFrame.getSelectedIndex()));
+				taskForEdit = model.getTaskList().get(mainFrame.getSelectedIndex());
+				addEditDialog.setTask(taskForEdit);
 				addEditDialog.addActionListener(Controller.this);
 				addEditDialog.setVisible(true);
 			} else
@@ -235,6 +278,46 @@ public class Controller implements ActionListener, MainFrameObserverInterface,
 				MainFrame.showErrorMessage(mainFrame, e.getMessage());
 			}
 		}
-		
+        
+        public void deactivate() {
+            Object[] selectedValuesToDeactivate = informFrame.getSelectedValues();
+            for (Object value : selectedValuesToDeactivate) {
+                int i = model.getTaskIndex(((Task) value).getTitle());
+                if(i == -1) {
+                    showErrorMessage("Невозможно найти задачу в базе данных");
+                    return;
+                }
+                model.getTaskList().get(i).setActive(false);
+                checkInformFrame(model.getTaskList().get(i));
+            }
+            model.notifyObservers(model.getTaskList());
+        }
+
+        public void setAside() {
+            Object[] selectedValuesToDeactivate = informFrame.getSelectedValues();
+            for (Object value : selectedValuesToDeactivate) {
+                int i = model.getTaskIndex(((Task) value).getTitle());
+                if(i == -1) {
+                    showErrorMessage("Невозможно найти задачу в базе данных");
+                    return;
+                }
+                
+                Task task = model.getTaskList().get(i);
+                Date time = model.getTaskList().get(i).getTime();
+                time.setTime(Calendar.getInstance().getTime().getTime() + 5 * 60 * 1000);
+                
+                if(!task.isRepeated()) {
+                    model.getTaskList().get(i).setTime(time);
+                }
+                else {
+                    if(task.getEndTime().after(time))
+                        task.setStartTime(time);
+                    else
+                        task.setEndTime(time);
+                }
+                checkInformFrame(task);
+                model.notifyObservers(model.getTaskList());
+            }
+        }
 	}
 }

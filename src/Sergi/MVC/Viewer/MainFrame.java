@@ -4,13 +4,13 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Arrays;
-import java.util.EventListener;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -23,17 +23,12 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionListener;
 
 import Sergi.MVC.Controller.ActionListenerTM;
+import Sergi.MVC.Controller.Controller;
 
 public class MainFrame extends JFrame  {
 
 	private static final long serialVersionUID = 1L;
 
-//	public static final String BUTTTON_NAME_ADD_DIALOG = ;
-//	public static final String BUTTON_NAME_REPALCE = ;
-//	public static final String BUTTON_NAME_REMOVE = ;
-//	public static final String BUTTON_NAME_EXIT = ;
-//	public static final String BUTTON_NAME_FIND = ;
-	
 	private final String findFieldText = new String("введите название задачи");
 
 	private JButton jAddButton;
@@ -44,12 +39,9 @@ public class MainFrame extends JFrame  {
 	private JButton jFindButton;
 	private JTextField jtfFind;
 
-	/**
-	 * @param title
-	 * @throws HeadlessException
-	 */
 	public MainFrame(String title) {
 		super(title);
+		initComponents();
 	}
 
 	public void initComponents() {
@@ -75,10 +67,14 @@ public class MainFrame extends JFrame  {
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						5, 0, 5), 0, 0));
 		addFocusListeners();
-
 	}
 
-	private void initMainPanel(JPanel panel) {
+	private void addWindowListener(WindowAdapter windowEventHandler) {
+	    this.addWindowListener(windowEventHandler);
+	           
+    }
+
+    private void initMainPanel(JPanel panel) {
 		JLabel text = new JLabel("Список задач", JLabel.CENTER);
 		Font font = new Font("Gabriola", Font.BOLD, 36);
 		text.setFont(font);
@@ -86,18 +82,19 @@ public class MainFrame extends JFrame  {
 		panel.add(text, new GridBagConstraints(0, 0, 3, 1, 0, 0,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0,
 						5, 0, 5), 0, 0));
+		
 		jList = new JList();
-		panel.add(jList, new GridBagConstraints(0, 1, 3, 4, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,
-						5, 5, 5), 0, 0));
+		panel.add(new javax.swing.JScrollPane(jList), 
+		        new GridBagConstraints(0, 1, 3, 4, 0, 0, GridBagConstraints.CENTER, 
+		        GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0));
 	}
 
 	private void initButtonPanel(JPanel panel) {
-		jAddButton = new JButton(ButtonNames.BUTTON_NAME_ADD_DIALOG.getTypeValue());
+		jAddButton     = new JButton(ButtonNames.BUTTON_NAME_ADD_DIALOG.getTypeValue());
 		jReplaceButton = new JButton(ButtonNames.BUTTON_NAME_REPALCE.getTypeValue());
-		jRemoveButton = new JButton(ButtonNames.BUTTON_NAME_REMOVE.getTypeValue());
+		jRemoveButton  = new JButton(ButtonNames.BUTTON_NAME_REMOVE.getTypeValue());
 		jRemoveButton.setEnabled(false);
-		jExitButton = new JButton(ButtonNames.BUTTON_NAME_EXIT.getTypeValue());
+		jExitButton    = new JButton(ButtonNames.BUTTON_NAME_EXIT.getTypeValue());
 		
 		panel.setLayout(new GridBagLayout());
 		panel.add(jAddButton, new GridBagConstraints(0, 0, 1, 1, 0, 0,

@@ -80,6 +80,8 @@ public class TaskDialog extends JDialog {
 		super(owner, windowName, rootPaneCheckingEnabled);
 		this.setName(windowName);
 		initComponents();
+		this.pack();
+		this.setMinimumSize(this.getSize());
 	}
 
 	public TaskDialog(JFrame owner, boolean rootPaneCheckingEnabled) {

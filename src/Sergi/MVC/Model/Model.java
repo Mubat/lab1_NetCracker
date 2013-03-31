@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -101,7 +102,7 @@ public class Model {
 				return task;
 		return null;
 	}
-
+	
 	public Task getTask(Date date) {
 		for (Task task : arrList)
 			if (task.getTime().equals(date))
@@ -161,9 +162,11 @@ public class Model {
 		return -1;
 	}
 
-	public void itsTimeToTask(Task task) {
-		notifyObservers(task);
-		notifyObservers(arrList);
+	public void itsTimeToTask(LinkedList<Task> onsetTaskList) {
+	    if(!onsetTaskList.isEmpty()) {
+	        notifyObservers(onsetTaskList);
+	        notifyObservers(arrList);
+	    }
 	}
 	
 	public void startTaskCheking() {
@@ -172,7 +175,7 @@ public class Model {
 	}
 	
 	public void checkTasks() {
-		taskCheking.checkArrayTask();
+	    itsTimeToTask(taskCheking.checkTasks());
 	}
 
 	public Task getTaskIndex(int selectedIndex) {
@@ -186,4 +189,13 @@ public class Model {
 		}
 		return false;
 	}
+
+    public void replaceTask(Task oldTaskData, Task newTaskData) {
+        oldTaskData.setTitle(newTaskData.getTitle());
+        oldTaskData.setActive(newTaskData.isActive());
+        oldTaskData.setRepeatCount(newTaskData.getRepeatCount());
+        oldTaskData.setStartTime(newTaskData.getStartTime());
+        if(newTaskData.isRepeated())
+            oldTaskData.setEndTime(newTaskData.getEndTime());
+    }
 }

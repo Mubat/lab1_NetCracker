@@ -1,17 +1,17 @@
 package Sergi.MVC.Viewer;
 
 public enum ButtonNames {
-	BUTTON_NAME_ADD_DIALOG(
-			"<html><body align = center>Добавить<br>новую задачу</body></html>"), 
-	BUTTON_NAME_REPALCE(
-			"<html><body align = center>Редактировать<br/>задачу</body></html>"), 
-	BUTTON_NAME_REMOVE("Удалить задачу"), 
-	BUTTON_NAME_EXIT("Выход"), 
-	BUTTON_NAME_FIND("Найти задачу"),
+	BUTTON_NAME_ADD_DIALOG  ("<html><body align = center>Добавить<br>новую задачу</body></html>"), 
+	BUTTON_NAME_REPALCE		("<html><body align = center>Редактировать<br/>задачу</body></html>"), 
+	BUTTON_NAME_REMOVE		("Удалить задачу"), 
+	BUTTON_NAME_EXIT		("Выход"), 
+	BUTTON_NAME_FIND		("Найти задачу"),
 	
-	BUTTON_NAME_ADD_TASK("Добавить задачу"),
-	BUTTON_NAME_EDIT_TASK("Изменить задачу"),
-	BUTTON_NAME_CANCEL_TASK("Отмена");
+	BUTTON_NAME_ADD_TASK	("Добавить задачу"),
+	BUTTON_NAME_EDIT_TASK	("Изменить задачу"),
+	BUTTON_NAME_CANCEL_TASK	("Отмена"), 
+	BUTTON_NAME_SET_ASIDE	("Отложить задачу на 5 мин"), 
+	BUTTON_NAME_DEACTIVATE	("Деактивировать задачу");
 
 	private String buttonName;
 

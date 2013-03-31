@@ -272,15 +272,33 @@ public class Task implements Cloneable, Serializable {
 			Task temp = (Task) target;
 			if (temp.getTitle().equals(this.getTitle())
 					&& this.isActive() == temp.isActive()
-					&& this.getStartTime().compareTo(temp.getStartTime()) == 0
-					&& this.getEndTime().compareTo(temp.getEndTime()) == 0
+//					&& this.getStartTime().compareTo(temp.getStartTime()) == 0
+					&& specifyCompareTwoDates(getStartTime(), temp.getStartTime())
+					&& specifyCompareTwoDates(getEndTime(), temp.getEndTime())
+//					&& this.getEndTime().compareTo(temp.getEndTime()) == 0
 					&& this.getRepeatCount() == temp.getRepeatCount())
 				return true;
 		}
 		return false;
 	}
 
-	/**
+	private boolean specifyCompareTwoDates(Date with, Date to) {
+	    Calendar dateWith = new GregorianCalendar();
+	    dateWith.setTime(with);
+        
+	    Calendar dateTo = new GregorianCalendar();
+        dateTo.setTime(to);
+        
+        if(dateWith.get(Calendar.YEAR)            == dateTo.get(Calendar.YEAR)
+           && dateWith.get(Calendar.MONTH)        == dateTo.get(Calendar.MONTH)
+           && dateWith.get(Calendar.DAY_OF_MONTH) == dateTo.get(Calendar.DAY_OF_MONTH)
+           && dateWith.get(Calendar.HOUR_OF_DAY)  == dateTo.get(Calendar.HOUR_OF_DAY)
+           && dateWith.get(Calendar.MINUTE)       == dateTo.get(Calendar.MINUTE))
+            return true;
+        return false;
+    }
+
+    /**
 	 * Create the hash code of this object
 	 * 
 	 * @return the hash code
