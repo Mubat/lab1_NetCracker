@@ -84,7 +84,9 @@ public class InformDialog extends JDialog {
     }
 
     public boolean removeElement(Task element) {
-        return listModel.removeElement(element);
+        listModel.removeElement(element);
+        System.out.println("remove element " + element + ". " + (listModel.contains(element.toString()) ? "" : "Not ") + "removed");
+        return listModel.contains(element);
     }
     
 }

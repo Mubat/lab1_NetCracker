@@ -32,7 +32,6 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 	private static MainFrame mainFrame;
 	private Task taskForEdit;
 	private TaskDialog addEditDialog;
-	public int i;
     private InformDialog informFrame;
 
 	/**
@@ -92,9 +91,9 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 			mainFrame.enableInList(findedTaskInList);
 	}
 
-	public void removeTask(List<Object> list) {
-		
-	}
+//	public void removeTask(List<Object> list) {
+//		
+//	}
 
 	public void storeTasks() throws ModelException {
 		model.writeTasksToFile(model.getArrayTaskList());
@@ -123,7 +122,7 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 	@SuppressWarnings("unchecked")
     @Override
 	public void update(Object value) {
-		//здесь в обоих случаях передается ArrayList 
+	    System.out.println("Update method: " + value.getClass());
 		if (value instanceof LinkedList<?>)
 			info((LinkedList<Task>) value);
 		else if (value instanceof ArrayList<?>)
@@ -183,7 +182,7 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 		String actionCommand = event.getActionCommand();
 		ButtonNames buttonName = ButtonNames.getType(actionCommand);
 		ActionHandler handler = this.new ActionHandler();
-		
+		System.out.println(actionCommand + ":\t" + event.getSource());
 		switch (buttonName) {
 		case BUTTON_NAME_ADD_DIALOG:  handler.addDialog(); break;
 		case BUTTON_NAME_REPALCE:     handler.editDialog(); break;
@@ -197,6 +196,9 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 		case BUTTON_NAME_DEACTIVATE:  handler.deactivate(); break;
         default: 						showErrorMessage("Неизвестное название команды: " + buttonName);
 		}
+		System.out.println("Выходит");
+		model.checkTasks();
+		model.notifyObservers(model.getTaskList());
 //		mainFrame.setVisible(false);
 //		mainFrame.repaint();
 //		mainFrame.setVisible(true);
@@ -211,16 +213,17 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 			addEditDialog.setVisible(true);
 		}
 
-        private void checkInformFrame(Task task) {
-            informFrame.removeElement(task);
+        private void deleteTasksFromInformFrame(Task task) {
+            if(informFrame.removeElement(task))
+                showErrorMessage("Задача " + task.getTitle() + " не была удалена из оповещений.");
             if(informFrame.isEmpty()) {
                 informFrame.dispose();
                 informFrame = null;
+                System.out.println("InformFrame (must null, because empty)" + informFrame);
             }
         }
 
         public void cancel() {
-//			System.out.println("TEst");
 			addEditDialog.dispose();
 		}
 
@@ -281,21 +284,29 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
         
         public void deactivate() {
             Object[] selectedValuesToDeactivate = informFrame.getSelectedValues();
+            if(selectedValuesToDeactivate.length == 0) {
+                showErrorMessage("Выбирете одно или несколько значений");
+            }
             for (Object value : selectedValuesToDeactivate) {
                 int i = model.getTaskIndex(((Task) value).getTitle());
                 if(i == -1) {
                     showErrorMessage("Невозможно найти задачу в базе данных");
                     return;
                 }
+                deleteTasksFromInformFrame(model.getTaskList().get(i));
                 model.getTaskList().get(i).setActive(false);
-                checkInformFrame(model.getTaskList().get(i));
+                
             }
             model.notifyObservers(model.getTaskList());
         }
 
         public void setAside() {
-            Object[] selectedValuesToDeactivate = informFrame.getSelectedValues();
-            for (Object value : selectedValuesToDeactivate) {
+            Object[] selectedValuesToAside = informFrame.getSelectedValues();
+            if(selectedValuesToAside.length == 0) {
+                showErrorMessage("Выбирете одно или несколько значений");
+            }
+            
+            for (Object value : selectedValuesToAside) {
                 int i = model.getTaskIndex(((Task) value).getTitle());
                 if(i == -1) {
                     showErrorMessage("Невозможно найти задачу в базе данных");
@@ -303,6 +314,7 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
                 }
                 
                 Task task = model.getTaskList().get(i);
+                deleteTasksFromInformFrame(task);
                 Date time = model.getTaskList().get(i).getTime();
                 time.setTime(Calendar.getInstance().getTime().getTime() + 5 * 60 * 1000);
                 
@@ -315,7 +327,7 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
                     else
                         task.setEndTime(time);
                 }
-                checkInformFrame(task);
+                
                 model.notifyObservers(model.getTaskList());
             }
         }
