@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 
+import javax.swing.JDialog;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
@@ -25,7 +25,7 @@ import Sergi.MVC.Viewer.MainFrame;
 import Sergi.MVC.Viewer.TaskDialog;
 
 public class Controller extends WindowAdapter implements ActionListener, MainFrameObserverInterface,
-		ListSelectionListener, WindowListener {
+		ListSelectionListener {
 
 	static SimpleDateFormat sdf;
 	private static Model model;
@@ -57,7 +57,7 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 		model.registerObserver(this);
 		mainFrame.addActionListener(this);
 		mainFrame.addListSelections(this);
-		mainFrame.addWindowListener(this);
+		mainFrame.addWindowListener(new WindowListenerTM(this));
 		model.startTaskCheking();
 		mainFrame.pack();
 		mainFrame.setMinimumSize(mainFrame.getSize());
@@ -91,19 +91,11 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 			mainFrame.enableInList(findedTaskInList);
 	}
 
-//	public void removeTask(List<Object> list) {
-//		
-//	}
-
-	public void storeTasks() throws ModelException {
+	public void storeTasksAndExit() throws ModelException {
 		model.writeTasksToFile(model.getArrayTaskList());
 		System.exit(0);
 	}
 
-	/**
-	 * @author Pochkun Taras
-	 * @param e
-	 */
 	private void setWindowEvent(ActionEvent e) {
 		String buttonName = e.getActionCommand();
 
@@ -119,7 +111,6 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
     @Override
 	public void update(Object value) {
 	    System.out.println("Update method: " + value.getClass());
@@ -127,7 +118,7 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 			info((LinkedList<Task>) value);
 		else if (value instanceof ArrayList<?>)
 			mainFrame.updateList(model.getArrayTaskList());
-		else showErrorMessage("Unexpectable type.");
+		else error("Unexpectable type.");
 	}
 
 	private void info(LinkedList<Task> values) {
@@ -148,7 +139,7 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 				ButtonNames.BUTTON_NAME_REMOVE.getTypeValue(), true);
 	}
 
-	public static void showErrorMessage(String errorString) {
+	public static void error(String errorString) {
 		MainFrame.showErrorMessage(mainFrame, errorString);
 	}
 
@@ -166,103 +157,83 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 			throw new ModelException(e);
 		}
 	}
-	
-    public void windowClosing(WindowEvent event) {
-        try {
-            this.storeTasks();
-        } catch (ModelException e) {
-            showErrorMessage(e.toString());
-        }
-        event.getWindow().dispose();
-    }
-	
+
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		setWindowEvent(event);
+//		setWindowEvent(event);
 		String actionCommand = event.getActionCommand();
 		ButtonNames buttonName = ButtonNames.getType(actionCommand);
 		ActionHandler handler = this.new ActionHandler();
 		System.out.println(actionCommand + ":\t" + event.getSource());
-		switch (buttonName) {
-		case BUTTON_NAME_ADD_DIALOG:  handler.addDialog(); break;
-		case BUTTON_NAME_REPALCE:     handler.editDialog(); break;
-		case BUTTON_NAME_REMOVE:      handler.remove(); break; 
-		case BUTTON_NAME_EXIT:        handler.exit();	break;
-		case BUTTON_NAME_FIND:        handler.find(); break;
-		case BUTTON_NAME_ADD_TASK:    handler.addTask(); break;
-		case BUTTON_NAME_EDIT_TASK:   handler.editTask();	break;
-		case BUTTON_NAME_CANCEL_TASK: handler.cancel(); break;
-		case BUTTON_NAME_SET_ASIDE:   handler.setAside(); break;
-		case BUTTON_NAME_DEACTIVATE:  handler.deactivate(); break;
-        default: 						showErrorMessage("Неизвестное название команды: " + buttonName);
+		try {
+    		switch (buttonName) {
+    		case BUTTON_NAME_ADD_DIALOG:  handler.addDialog(); break;
+    		case BUTTON_NAME_REPALCE:     handler.editDialog((MainFrame) event.getSource()); break;
+    		case BUTTON_NAME_REMOVE:      handler.remove((MainFrame) event.getSource()); break; 
+    		case BUTTON_NAME_EXIT:        handler.exit();	break;
+    		case BUTTON_NAME_FIND:        handler.find((MainFrame) event.getSource()); break;
+    		case BUTTON_NAME_ADD_TASK:    handler.addTask((TaskDialog) event.getSource()); break;
+    		case BUTTON_NAME_EDIT_TASK:   handler.editTask((TaskDialog) event.getSource());	break;
+    		case BUTTON_NAME_CANCEL_TASK: handler.cancel((TaskDialog) event.getSource()); break;
+    		case BUTTON_NAME_SET_ASIDE:   handler.setAside((InformDialog) event.getSource()); break;
+    		case BUTTON_NAME_DEACTIVATE:  handler.deactivate((InformDialog) event.getSource()); break;
+            default: 						error("Неизвестное название команды: " + buttonName);
+    		}
+		} catch(ModelException e) {
+		    error(e.toString());
 		}
-		System.out.println("Выходит");
 		model.checkTasks();
-		model.notifyObservers(model.getTaskList());
-//		mainFrame.setVisible(false);
-//		mainFrame.repaint();
-//		mainFrame.setVisible(true);
 	}
 	
 	private class ActionHandler {
 
 		public void addDialog(){
-			addEditDialog = new TaskDialog(mainFrame, false);
-			addEditDialog.setTask(new Task());
-			addEditDialog.addActionListener(Controller.this);
-			addEditDialog.setVisible(true);
+			TaskDialog addEditDialog1 = new TaskDialog(mainFrame, false);
+			addEditDialog1.setTask(new Task());
+			addEditDialog1.addActionListener(Controller.this);
+			addEditDialog1.setVisible(true);
 		}
 
-        private void deleteTasksFromInformFrame(Task task) {
-            if(informFrame.removeElement(task))
-                showErrorMessage("Задача " + task.getTitle() + " не была удалена из оповещений.");
-            if(informFrame.isEmpty()) {
-                informFrame.dispose();
-                informFrame = null;
-                System.out.println("InformFrame (must null, because empty)" + informFrame);
-            }
-        }
-
-        public void cancel() {
-			addEditDialog.dispose();
+        public void cancel(TaskDialog object) {
+			object.dispose();
 		}
 
-		public void editTask() {
-		    if(model.getTaskList().contains(addEditDialog.getTask())) {
-		        showErrorMessage("Задача уже присутствует в списке");
+		public void editTask(TaskDialog object) throws ModelException {
+		    if(model.getTaskList().contains(object.getTask())) {
+		        error("Задача уже присутствует в списке");
 		        return;
 		    } 
-			model.replaceTask(taskForEdit, addEditDialog.getTask());
-			addEditDialog.dispose();
+			model.replaceTask(taskForEdit, object.getTask());
+			object.dispose();
 			model.checkTasks();
 		}
 
-		public void addTask() {
-			Task task = addEditDialog.getTask();
+		public void addTask(TaskDialog object) {
+			Task task = object.getTask();
 			
 			if (model.contains(task)) {
-				showErrorMessage("Задача уже есть в списке");
+				error("Задача уже есть в списке");
 				return;
 			}
-			model.addNewTask(addEditDialog.getTask());
-			addEditDialog.dispose();
+			model.addNewTask(object.getTask());
+			object.dispose();
 			model.checkTasks();
 			
 		}
 
-		public void find() {
-			findTaskIndex(mainFrame.getFindString());
+		public void find(MainFrame object) {
+			findTaskIndex(object.getFindString());
 		}
 
-		public void remove() {
-			for (Object task : mainFrame.getSelectasValuesList()) {
+		public void remove(MainFrame object) {
+			for (Object task : object.getSelectasValuesList()) {
 				model.removeTask((Task) task);
 			}
 		}
 
-		public void editDialog(){
+		public void editDialog(MainFrame mainFrame){
 			if (mainFrame.getSelectedIndicies().length == 1) {
-				addEditDialog = new TaskDialog(
+			    TaskDialog addEditDialog = new TaskDialog(
 						mainFrame,"Изменить задачу " + model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), 
 						false);
 				taskForEdit = model.getTaskList().get(mainFrame.getSelectedIndex());
@@ -270,51 +241,50 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
 				addEditDialog.addActionListener(Controller.this);
 				addEditDialog.setVisible(true);
 			} else
-				showErrorMessage("Выбрано больше одного объекта для изменения!");
+				error("Выбрано больше одного объекта для изменения!");
 		}
 		
 		public void exit(){
-			
 			try {
-				storeTasks();
+				storeTasksAndExit();
 			} catch (ModelException e) {
-				MainFrame.showErrorMessage(mainFrame, e.getMessage());
+				error(e.getMessage());
 			}
 		}
         
-        public void deactivate() {
-            Object[] selectedValuesToDeactivate = informFrame.getSelectedValues();
+        public void deactivate(InformDialog object) {
+            Object[] selectedValuesToDeactivate = object.getSelectedValues();
             if(selectedValuesToDeactivate.length == 0) {
-                showErrorMessage("Выбирете одно или несколько значений");
+                error("Выбирете одно или несколько значений");
             }
             for (Object value : selectedValuesToDeactivate) {
                 int i = model.getTaskIndex(((Task) value).getTitle());
                 if(i == -1) {
-                    showErrorMessage("Невозможно найти задачу в базе данных");
+                    error("Невозможно найти задачу в базе данных");
                     return;
                 }
-                deleteTasksFromInformFrame(model.getTaskList().get(i));
+                deleteTasksFromInformFrame(object, model.getTaskList().get(i));
                 model.getTaskList().get(i).setActive(false);
                 
             }
             model.notifyObservers(model.getTaskList());
         }
 
-        public void setAside() {
-            Object[] selectedValuesToAside = informFrame.getSelectedValues();
+        public void setAside(InformDialog object) {
+            Object[] selectedValuesToAside = object.getSelectedValues();
             if(selectedValuesToAside.length == 0) {
-                showErrorMessage("Выбирете одно или несколько значений");
+                error("Выбирете одно или несколько значений");
             }
             
             for (Object value : selectedValuesToAside) {
                 int i = model.getTaskIndex(((Task) value).getTitle());
                 if(i == -1) {
-                    showErrorMessage("Невозможно найти задачу в базе данных");
+                    error("Невозможно найти задачу в базе данных");
                     return;
                 }
                 
                 Task task = model.getTaskList().get(i);
-                deleteTasksFromInformFrame(task);
+                deleteTasksFromInformFrame(object, task);
                 Date time = model.getTaskList().get(i).getTime();
                 time.setTime(Calendar.getInstance().getTime().getTime() + 5 * 60 * 1000);
                 
@@ -331,5 +301,17 @@ public class Controller extends WindowAdapter implements ActionListener, MainFra
                 model.notifyObservers(model.getTaskList());
             }
         }
+
+        private void deleteTasksFromInformFrame(InformDialog frame, Task task) {
+            if(frame.removeElement(task))
+                error("Задача " + task.getTitle() + " не была удалена из оповещений.");
+            if(frame.isEmpty()) {
+                frame.dispose();
+                frame = null;
+                System.out.println("InformFrame (must null, because empty)" + informFrame);
+            }
+                
+        }
+
 	}
 }

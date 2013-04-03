@@ -50,7 +50,7 @@ public class Model {
 			throw new ModelException(e);
 		} catch (FileNotFoundException e) {
 			Controller
-					.showErrorMessage("XML file with saved taskList not found. "
+					.error("XML file with saved taskList not found. "
 							+ "Please, check file \"Task.xml\" in folder with program.");
 		} catch (IOException e) {
 			throw new ModelException(e);
@@ -176,6 +176,7 @@ public class Model {
 	
 	public void checkTasks() {
 	    itsTimeToTask(taskCheking.checkTasks());
+	    notifyObservers(getTaskList());
 	}
 
 	public Task getTaskIndex(int selectedIndex) {
@@ -190,7 +191,9 @@ public class Model {
 		return false;
 	}
 
-    public void replaceTask(Task oldTaskData, Task newTaskData) {
+    public void replaceTask(Task oldTaskData, Task newTaskData) throws ModelException {
+        if(newTaskData == null) 
+            throw new ModelException("Ошибка изменения параметров задачи. Новая задача не найдена.");
         oldTaskData.setTitle(newTaskData.getTitle());
         oldTaskData.setActive(newTaskData.isActive());
         oldTaskData.setRepeatCount(newTaskData.getRepeatCount());
