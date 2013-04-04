@@ -20,7 +20,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import Sergi.MVC.Controller.Controller;
 import Sergi.MVC.Controller.MainFrameObserverInterface;
 import Sergi.MVC.Controller.ModelException;
 import Sergi.MVC.Model.parse.XMLreadWrite;
@@ -29,7 +28,7 @@ import Sergi.MVC.Model.parse.XMLreadWrite;
  * @author Sergienko Oleg
  * 
  */
-public class Model {
+public class Model extends Sergi.MVC.Tools {
 
 	private ArrayList<MainFrameObserverInterface> addEditObservers = new ArrayList<MainFrameObserverInterface>();
 	private ArrayList<Task> arrList;
@@ -49,9 +48,8 @@ public class Model {
 		} catch (SAXException e) {
 			throw new ModelException(e);
 		} catch (FileNotFoundException e) {
-			Controller
-					.error("XML file with saved taskList not found. "
-							+ "Please, check file \"Task.xml\" in folder with program.");
+		    error("XML file with saved taskList not found. "
+		            + "Please, check file \"Task.xml\" in folder with program.");
 		} catch (IOException e) {
 			throw new ModelException(e);
 		} catch (ParseException e) {

@@ -1,5 +1,6 @@
 package Sergi.MVC.Viewer;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,6 +12,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
@@ -21,7 +23,9 @@ public class InformDialog extends JDialog {
 
     private static final long serialVersionUID = 1476500591459125384L;
 
-    LinkedList<Task> taskList;
+    private static final String INFORM_MESSAGE = "YO. ";
+
+    Task task;
 
     private JButton jDeactivate;
     private JButton jAside;
@@ -29,24 +33,19 @@ public class InformDialog extends JDialog {
 
     private DefaultListModel listModel;
 
-//    private ActionListener parentListener;
-
-    public InformDialog(JFrame owner, boolean modal, LinkedList<Task> task) {
+    public InformDialog(JFrame owner, boolean modal, Task task) {
         super(owner, "Информационное окно", modal);
-        taskList = task;
+        this.task = task;
         initComponents();
     }
 
     private void initComponents() {
-        this.setLayout(new GridBagLayout());
+        this.setLayout(new BorderLayout());
         listModel = new DefaultListModel();
-        for (Task task : taskList) {
-            listModel.addElement(task);
-        }
-        jList = new JList(listModel);
-        
-        this.add(jList,         new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 10), 0, 0));
-        this.add(buttonPanel(), new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 10, 0, 5), 0, 0));
+        JLabel jInformText = new JLabel(INFORM_MESSAGE + task.toString());
+//        add(UIManager.getIcon("OptionPane.informationIcon"), BorderLayout.WEST);
+        add(jInformText, BorderLayout.CENTER);
+        add(buttonPanel(), BorderLayout.SOUTH);
         this.pack();
         this.setMinimumSize(this.getSize());
     }
@@ -54,22 +53,26 @@ public class InformDialog extends JDialog {
     private Component buttonPanel() {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridBagLayout());
-        jDeactivate = new JButton(ButtonNames.BUTTON_NAME_DEACTIVATE.getTypeValue());
-        jAside      = new JButton(ButtonNames.BUTTON_NAME_SET_ASIDE .getTypeValue());
-        
-        buttonPanel.add(jDeactivate, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 10), 0, 0));
-        buttonPanel.add(jAside, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 10), 0, 0));
+        jDeactivate = new JButton(
+                ButtonNames.BUTTON_NAME_DEACTIVATE.getTypeValue());
+        jAside = new JButton(ButtonNames.BUTTON_NAME_SET_ASIDE.getTypeValue());
+
+        buttonPanel.add(jDeactivate, new GridBagConstraints(0, 0, 1, 1, 0, 0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
+                        5, 5, 0, 10), 0, 0));
+        buttonPanel.add(jAside, new GridBagConstraints(0, 1, 1, 1, 0, 0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
+                        5, 5, 0, 10), 0, 0));
         return buttonPanel;
     }
 
     public void addActionListener(ActionListener listener) {
-//        parentListener = listener;
-        jAside.addActionListener     (new ActionListenerTM(this, 0, listener));
+        // parentListener = listener;
+        jAside.addActionListener(new ActionListenerTM(this, 0, listener));
         jDeactivate.addActionListener(new ActionListenerTM(this, 0, listener));
 
     }
 
-    @SuppressWarnings("deprecation")
     public Object[] getSelectedValues() {
         return jList.getSelectedValues();
     }
@@ -77,16 +80,18 @@ public class InformDialog extends JDialog {
     public boolean isEmpty() {
         return listModel.isEmpty();
     }
-    
+
     public void addElement(Task element) {
-        if(!listModel.contains(element))
+        if (!listModel.contains(element))
             listModel.addElement(element);
     }
 
     public boolean removeElement(Task element) {
         listModel.removeElement(element);
-        System.out.println("remove element " + element + ". " + (listModel.contains(element.toString()) ? "" : "Not ") + "removed");
+        System.out.println("remove element " + element + ". "
+                + (listModel.contains(element.toString()) ? "" : "Not ")
+                + "removed");
         return listModel.contains(element);
     }
-    
+
 }
