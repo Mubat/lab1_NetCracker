@@ -29,8 +29,6 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
     private static Model model;
     private static MainFrame mainFrame;
     private Task taskForEdit;
-    private TaskDialog addEditDialog;
-    private InformDialog informFrame;
 
     /**
      * 
@@ -69,21 +67,11 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         }
     }
 
-/*  public void showAddDialog(int i) {
-        if (i == -1) {
-            addEditDialog.setTask(new Task());
-        } else {
-            taskForEdit = model.getTaskList().get(i);
-            addEditDialog.setTask(taskForEdit);
-        }
-        addEditDialog.addActionListener(this);
-        addEditDialog.setVisible(true);
-
-    }
-*/
     public void findTaskIndex(String text) {
         int findedTaskInList = model.getTaskIndex(text);
-        if (findedTaskInList != -1)
+        if (findedTaskInList == -1)
+            info("Невозможно найти задачу");
+        else
             mainFrame.enableInList(findedTaskInList);
     }
 
@@ -92,24 +80,8 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         System.exit(0);
     }
 
-/*    private void setWindowEvent(ActionEvent e) {
-        String buttonName = e.getActionCommand();
-
-        if(ButtonNames.BUTTON_NAME_ADD_TASK.getTypeValue().equals(buttonName)  ||
-           ButtonNames.BUTTON_NAME_EDIT_TASK.getTypeValue().equals(buttonName) ||
-           ButtonNames.BUTTON_NAME_CANCEL_TASK.getTypeValue().equals(buttonName)) {
-            addEditDialog = (TaskDialog) e.getSource(); 
-        }
-        
-        if(ButtonNames.BUTTON_NAME_DEACTIVATE.getTypeValue().equals(buttonName) ||
-           ButtonNames.BUTTON_NAME_SET_ASIDE.getTypeValue().equals(buttonName)) {
-            informFrame = (InformDialog) e.getSource();
-        }
-    }
-*/
     @Override
     public void update(Object value) {
-        System.out.println("Update method: " + value.getClass());
         if (value instanceof LinkedList<?>)
             info((LinkedList<Task>) value);
         else if (value instanceof ArrayList<?>)
@@ -118,15 +90,6 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
     }
 
     private void info(LinkedList<Task> values) {
-/*        if(informFrame == null) {
-            informFrame = new InformDialog(mainFrame, false, values);
-            informFrame.addActionListener(this);
-            informFrame.setVisible(true);
-        }
-        for (Task task : values) {
-            informFrame.addElement(task);
-        }
-*/      
         for (Task task : values) {
             InformDialog informFrame = new InformDialog(mainFrame, false, task);
             informFrame.setLocationRelativeTo(mainFrame);
@@ -204,7 +167,6 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
             } 
             model.replaceTask(taskForEdit, object.getTask());
             object.dispose();
-            model.checkTasks();
         }
 
         public void addTask(TaskDialog object) {
@@ -259,9 +221,9 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 error("Невозможно найти задачу в базе данных");
                 return;
             }
-            
             model.setTaskActiveStatus(i, false);
             object.dispose();
+            model.notifyObservers();
         }
 
         public void setAside(InformDialog object) {
@@ -286,10 +248,8 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 else
                     task.setEndTime(continueTime);
             }
-            
-            model.notifyObservers();
             object.dispose();
+            model.notifyObservers();
         }
-
     }
 }

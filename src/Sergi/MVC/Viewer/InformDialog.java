@@ -35,7 +35,7 @@ public class InformDialog extends JDialog {
         super(owner, "Информационное окно: " + task.getTitle().toUpperCase(), modal);
         this.task = task;
         initComponents();
-        
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void initComponents() {

@@ -138,7 +138,7 @@ public class MainFrame extends JFrame  {
 		jReplaceButton.addActionListener(new ActionListenerTM(this, 0, listener));
 		jRemoveButton.addActionListener (new ActionListenerTM(this, 0, listener));
 		jExitButton.addActionListener	(new ActionListenerTM(this, 0, listener));
-//		jtfFind.addActionListener		(new ActionListenerTM(this, 0, listener));
+		jtfFind.addActionListener		(new ActionListenerTM(this, 0, listener));
 		jFindButton.addActionListener	(new ActionListenerTM(this, 0, listener));
 		
 		jList.addListSelectionListener((ListSelectionListener) listener);
@@ -171,7 +171,6 @@ public class MainFrame extends JFrame  {
 
 	public void enableInList(int index) {
 		jList.setSelectedIndex(index);
-
 	}
 	
 	public void updateList(Object[] listData) {

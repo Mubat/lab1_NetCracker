@@ -83,6 +83,7 @@ public class TaskDialog extends JDialog {
 		setLocationRelativeTo(owner);
 		this.pack();
 		this.setMinimumSize(this.getSize());
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 
 	public TaskDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
