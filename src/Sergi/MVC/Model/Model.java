@@ -116,11 +116,17 @@ public class Model extends Sergi.MVC.Tools {
 		addEditObservers.remove(observer);
 	}
 
-	public void notifyObservers(Object value) {
-		for (MainFrameObserverInterface iterable_element : addEditObservers) {
-			iterable_element.update(value);
-		}
-	}
+    public void notifyObservers(Object value) {
+        for (MainFrameObserverInterface iterable_element : addEditObservers) {
+            iterable_element.update(value);
+        }
+    }
+
+    public void notifyObservers() {
+        for (MainFrameObserverInterface iterable_element : addEditObservers) {
+            iterable_element.update(getTaskList());
+        }
+    }
 
 	public ArrayList<Task> readTasksFromFile()
 			throws ParserConfigurationException, SAXException, IOException,
@@ -152,6 +158,7 @@ public class Model extends Sergi.MVC.Tools {
 		return null;
 	}
 
+	@Deprecated
 	public int getTaskIndex(String taskTitle) {
 		for (int i = 0; i < arrList.size(); i++) {
 			if (taskTitle.equals(arrList.get(i).getTitle()))
@@ -159,6 +166,14 @@ public class Model extends Sergi.MVC.Tools {
 		}
 		return -1;
 	}
+	
+   public int getTaskIndex(Task task) {
+        for (int i = 0; i < arrList.size(); i++) {
+            if (task.equals(arrList.get(i)))
+                return i;
+        }
+        return -1;
+    }
 
 	public void itsTimeToTask(LinkedList<Task> onsetTaskList) {
 	    if(!onsetTaskList.isEmpty()) {
@@ -199,4 +214,17 @@ public class Model extends Sergi.MVC.Tools {
         if(newTaskData.isRepeated())
             oldTaskData.setEndTime(newTaskData.getEndTime());
     }
+
+    public void setTaskActiveStatus(int taskIndex, boolean status) {
+        if(taskIndex < 0 || taskIndex > arrList.size())
+            error("Cannot change task status. Incorrent taskIndex.");
+        arrList.get(taskIndex).setActive(status);
+    }
+    
+    public void setTaskActiveStatus(Task task, boolean status) {
+        if(task == null)
+            error("Cannot change task status. Task is null");
+        arrList.get(getTaskIndex(task)).setActive(status);
+    }
+    
 }

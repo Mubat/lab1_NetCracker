@@ -67,6 +67,8 @@ public class MainFrame extends JFrame  {
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,
 						5, 0, 5), 0, 0));
 		addFocusListeners();
+		pack();
+		setMinimumSize(getSize());
 	}
 
 	private void addWindowListener(WindowAdapter windowEventHandler) {

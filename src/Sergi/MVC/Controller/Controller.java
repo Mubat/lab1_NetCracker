@@ -57,8 +57,6 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         mainFrame.addListSelections(this);
         mainFrame.addWindowListener(new WindowListenerTM(this));
         model.startTaskCheking();
-        mainFrame.pack();
-        mainFrame.setMinimumSize(mainFrame.getSize());
         mainFrame.setVisible(true);
 
     }
@@ -131,6 +129,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
 */      
         for (Task task : values) {
             InformDialog informFrame = new InformDialog(mainFrame, false, task);
+            informFrame.setLocationRelativeTo(mainFrame);
             informFrame.addActionListener(this);
             informFrame.setVisible(true);
         }
@@ -253,64 +252,43 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         }
         
         public void deactivate(InformDialog object) {
-            Object[] selectedValuesToDeactivate = object.getSelectedValues();
-            if(selectedValuesToDeactivate.length == 0) {
-                error("¬ыбирете одно или несколько значений");
+            Task taskToDeactivate = object.getTask();
+            int i = model.getTaskIndex(taskToDeactivate);
+            
+            if(i == -1) {
+                error("Ќевозможно найти задачу в базе данных");
+                return;
             }
-            for (Object value : selectedValuesToDeactivate) {
-                int i = model.getTaskIndex(((Task) value).getTitle());
-                if(i == -1) {
-                    error("Ќевозможно найти задачу в базе данных");
-                    return;
-                }
-                deleteTasksFromInformFrame(object, model.getTaskList().get(i));
-                model.getTaskList().get(i).setActive(false);
-                
-            }
-            model.notifyObservers(model.getTaskList());
+            
+            model.setTaskActiveStatus(i, false);
+            object.dispose();
         }
 
         public void setAside(InformDialog object) {
-            Object[] selectedValuesToAside = object.getSelectedValues();
-            if(selectedValuesToAside.length == 0) {
-                error("¬ыбирете одно или несколько значений");
+            Task taskToAside = object.getTask();
+            
+            int i = model.getTaskIndex(taskToAside);
+            if(i == -1) {
+                error("Ќевозможно найти задачу в базе данных");
+                return;
             }
             
-            for (Object value : selectedValuesToAside) {
-                int i = model.getTaskIndex(((Task) value).getTitle());
-                if(i == -1) {
-                    error("Ќевозможно найти задачу в базе данных");
-                    return;
-                }
-                
-                Task task = model.getTaskList().get(i);
-                deleteTasksFromInformFrame(object, task);
-                Date time = model.getTaskList().get(i).getTime();
-                time.setTime(Calendar.getInstance().getTime().getTime() + 5 * 60 * 1000);
-                
-                if(!task.isRepeated()) {
-                    model.getTaskList().get(i).setTime(time);
-                }
-                else {
-                    if(task.getEndTime().after(time))
-                        task.setStartTime(time);
-                    else
-                        task.setEndTime(time);
-                }
-                
-                model.notifyObservers(model.getTaskList());
+            Task task = model.getTaskList().get(i);
+            Date continueTime = model.getTaskList().get(i).getTime();
+            continueTime.setTime(Calendar.getInstance().getTime().getTime() + 5 * 60 * 1000);
+            
+            if(!task.isRepeated()) {
+                model.getTaskList().get(i).setTime(continueTime);
             }
-        }
-
-        private void deleteTasksFromInformFrame(InformDialog frame, Task task) {
-            if(frame.removeElement(task))
-                error("«адача " + task.getTitle() + " не была удалена из оповещений.");
-            if(frame.isEmpty()) {
-                frame.dispose();
-                frame = null;
-                System.out.println("InformFrame (must null, because empty)" + informFrame);
+            else {
+                if(task.getEndTime().after(continueTime))
+                    task.setStartTime(continueTime);
+                else
+                    task.setEndTime(continueTime);
             }
-                
+            
+            model.notifyObservers();
+            object.dispose();
         }
 
     }
