@@ -192,7 +192,7 @@ public class Model extends Sergi.MVC.Tools {
 	    notifyObservers(getTaskList());
 	}
 
-	public Task getTaskIndex(int selectedIndex) {
+	public Task getTaskByIndex(int selectedIndex) {
 		return arrList.get(selectedIndex);
 	}
 
@@ -227,4 +227,7 @@ public class Model extends Sergi.MVC.Tools {
         arrList.get(getTaskIndex(task)).setActive(status);
     }
     
+    public int getSize() {
+        return arrList.size();
+    }
 }

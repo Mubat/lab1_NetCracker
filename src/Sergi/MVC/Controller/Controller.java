@@ -2,7 +2,6 @@ package Sergi.MVC.Controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,6 +21,8 @@ import Sergi.MVC.Viewer.InformDialog;
 import Sergi.MVC.Viewer.MainFrame;
 import Sergi.MVC.Viewer.TaskDialog;
 
+//сделать проверку, что наступившая задача уже показывается
+
 public class Controller extends Tools implements ActionListener, MainFrameObserverInterface,
         ListSelectionListener {
 
@@ -29,7 +30,10 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
     private static Model model;
     private static MainFrame mainFrame;
     private Task taskForEdit;
-
+    private ArrayList<Task> printedTasks = new ArrayList<Task>();
+                                // индексы задач, которые уже выведены. 
+                                // Нужно для того, чтобы не выводить одну и ту же
+                                // задачу несколько раз
     /**
      * 
      * @throws ClassNotFoundException
@@ -91,10 +95,13 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
 
     private void info(LinkedList<Task> values) {
         for (Task task : values) {
-            InformDialog informFrame = new InformDialog(mainFrame, false, task);
-            informFrame.setLocationRelativeTo(mainFrame);
-            informFrame.addActionListener(this);
-            informFrame.setVisible(true);
+            if(!printedTasks.contains(task)) {
+                printedTasks.add(task);
+                InformDialog informFrame = new InformDialog(mainFrame, false, task);
+                informFrame.setLocationRelativeTo(mainFrame);
+                informFrame.addActionListener(this);
+                informFrame.setVisible(true);
+            }
         }
         update(model.getTaskList());
     }
@@ -122,11 +129,9 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
 
     @Override
     public void actionPerformed(ActionEvent event) {
-//      setWindowEvent(event);
         String actionCommand = event.getActionCommand();
         ButtonNames buttonName = ButtonNames.getType(actionCommand);
         ActionHandler handler = this.new ActionHandler();
-        System.out.println(actionCommand + ":\t" + event.getSource());
         try {
             switch (buttonName) {
             case BUTTON_NAME_ADD_DIALOG:  handler.addDialog(); break;
@@ -195,7 +200,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         public void editDialog(MainFrame mainFrame){
             if (mainFrame.getSelectedIndicies().length == 1) {
                 TaskDialog addEditDialog = new TaskDialog(
-                        mainFrame,"Изменить задачу " + model.getTaskIndex(mainFrame.getSelectedIndex()).getTitle(), 
+                        mainFrame,"Изменить задачу " + model.getTaskByIndex(mainFrame.getSelectedIndex()).getTitle(), 
                         false);
                 taskForEdit = model.getTaskList().get(mainFrame.getSelectedIndex());
                 addEditDialog.setTask(taskForEdit);
@@ -221,6 +226,8 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 error("Невозможно найти задачу в базе данных");
                 return;
             }
+            
+            printedTasks.remove(model.getTaskByIndex(i));
             model.setTaskActiveStatus(i, false);
             object.dispose();
             model.notifyObservers();
@@ -248,8 +255,11 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 else
                     task.setEndTime(continueTime);
             }
+            
+            printedTasks.remove(task);
             object.dispose();
             model.notifyObservers();
         }
+        
     }
 }
