@@ -13,11 +13,7 @@ public class WindowListenerTM extends WindowAdapter {
     }
     
     public void windowClosing(WindowEvent event) {
-        try {
-            controller.storeTasksAndExit();
-        } catch (ModelException e) {
-            Controller.error(e.toString());
-        }
+        controller.storeTasksAndExit();
         event.getWindow().dispose();
     }
     

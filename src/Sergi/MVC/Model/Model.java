@@ -26,7 +26,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import Sergi.MVC.Controller.MainFrameObserverInterface;
-import Sergi.MVC.Controller.ModelException;
 import Sergi.MVC.Model.parse.XMLreadWrite;
 
 /**
@@ -47,25 +46,8 @@ public class Model extends Sergi.MVC.Tools {
 
 	public Model() throws ModelException {
 		arrList = new ArrayList<Task>();
-		try {
-			arrList = readTasksFromFile();
-		} catch (DOMException e) {
-			throw new ModelException(e);
-		} catch (ParserConfigurationException e) {
-			throw new ModelException(e);
-		} catch (SAXException e) {
-			throw new ModelException(e);
-		} catch (FileNotFoundException e) {
-		    error("XML file with saved taskList not found. "
-		            + "Please, check file \"Task.xml\" in folder with program.");
-		} catch (IOException e) {
-			throw new ModelException(e);
-		} catch (ParseException e) {
-			throw new ModelException(e);
-		}
-
+		arrList = readTasksFromFile();
 		taskCheking = new TaskChecking(this);
-		
 	}
 
 	public void addNewTask(Task task) throws ModelException {
@@ -138,11 +120,24 @@ public class Model extends Sergi.MVC.Tools {
         }
     }
 
-	public ArrayList<Task> readTasksFromFile()
-			throws ParserConfigurationException, SAXException, IOException,
-			DOMException, ParseException, FileNotFoundException {
+	private ArrayList<Task> readTasksFromFile() throws ModelException {
 		analyzer = new XMLreadWrite();
-		return analyzer.parseXMLFile(fileName);
+		try {
+            return analyzer.parseXMLFile(fileName);
+        } catch (DOMException e) {
+            throw new ModelException(e);
+        } catch (FileNotFoundException e) {
+            throw new ModelException(e,"XML file with saved taskList not found. "
+                    + "Please, check file \"Task.xml\" in folder with program.");
+        } catch (ParseException e) {
+            throw new ModelException(e);
+        } catch (SAXException e) {
+            throw new ModelException(e);
+        } catch (IOException e) {
+            throw new ModelException(e);
+        } catch (ParserConfigurationException e) {
+            throw new ModelException(e);
+        }
 	}
 
 	public Document writeTasksToFile(Task[] taskArray) throws ModelException {
@@ -168,21 +163,20 @@ public class Model extends Sergi.MVC.Tools {
 		return null;
 	}
 
-	@Deprecated
-	public int getTaskIndex(String taskTitle) {
+	public int getTaskIndex(String taskTitle) throws ModelException {
 		for (int i = 0; i < arrList.size(); i++) {
 			if (taskTitle.equals(arrList.get(i).getTitle()))
 				return i;
 		}
-		return -1;
+		throw new ModelException("Невозможно найти задачу");
 	}
 	
-   public int getTaskIndex(Task task) {
+   public int getTaskIndex(Task task) throws ModelException {
         for (int i = 0; i < arrList.size(); i++) {
             if (task.equals(arrList.get(i)))
                 return i;
         }
-        return -1;
+        throw new ModelException("Невозможно найти задачу в базе данных");
     }
 
 	public void itsTimeToTask(LinkedList<Task> onsetTaskList) {
@@ -198,10 +192,10 @@ public class Model extends Sergi.MVC.Tools {
 		thread.start();
 	}
 	
-	public void checkTasks() {
-	    itsTimeToTask(taskCheking.checkTasks());
-	    notifyObservers(getTaskList());
-	}
+//	public void checkTasks() {
+//	    itsTimeToTask(taskCheking.checkTasks());
+//	    notifyObservers(getTaskList());
+//	}
 
 	public Task getTaskByIndex(int selectedIndex) {
 		return arrList.get(selectedIndex);
@@ -218,24 +212,30 @@ public class Model extends Sergi.MVC.Tools {
     public void replaceTask(Task oldTaskData, Task newTaskData) throws ModelException {
         if(newTaskData == null) 
             throw new ModelException("Ошибка изменения параметров задачи. Новая задача не найдена.");
+        if(getTaskList().contains(newTaskData))
+            throw new ModelException("Задача уже присутствует в списке");
+
         oldTaskData.setTitle(newTaskData.getTitle());
         oldTaskData.setActive(newTaskData.isActive());
         oldTaskData.setRepeatCount(newTaskData.getRepeatCount());
         oldTaskData.setStartTime(newTaskData.getStartTime());
         if(newTaskData.isRepeated())
             oldTaskData.setEndTime(newTaskData.getEndTime());
+        notifyObservers(arrList);
     }
 
     public void setTaskActiveStatus(int taskIndex, boolean status) {
         if(taskIndex < 0 || taskIndex > arrList.size())
             error("Cannot change task status. Incorrent taskIndex.");
         arrList.get(taskIndex).setActive(status);
+        notifyObservers(arrList);
     }
     
-    public void setTaskActiveStatus(Task task, boolean status) {
+    public void setTaskActiveStatus(Task task, boolean status) throws ModelException {
         if(task == null)
             error("Cannot change task status. Task is null");
         arrList.get(getTaskIndex(task)).setActive(status);
+        notifyObservers(arrList);
     }
     
     public int getSize() {

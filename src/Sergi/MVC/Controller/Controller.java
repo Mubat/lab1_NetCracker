@@ -15,6 +15,7 @@ import javax.swing.event.ListSelectionListener;
 
 import Sergi.MVC.Tools;
 import Sergi.MVC.Model.Model;
+import Sergi.MVC.Model.ModelException;
 import Sergi.MVC.Model.Task;
 import Sergi.MVC.Viewer.ButtonNames;
 import Sergi.MVC.Viewer.InformDialog;
@@ -71,17 +72,14 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         }
     }
 
-    public void findTaskIndex(String text) {
-        int findedTaskInList = model.getTaskIndex(text);
-        if (findedTaskInList == -1)
-            info("Невозможно найти задачу");
-        else
-            mainFrame.enableInList(findedTaskInList);
-    }
+    public void storeTasksAndExit(){
+        try {
+            model.writeTasksToFile(model.getArrayTaskList());
+            System.exit(0);
+        } catch (ModelException e) {
+            e.printStackTrace();
+        }
 
-    public void storeTasksAndExit() throws ModelException {
-        model.writeTasksToFile(model.getArrayTaskList());
-        System.exit(0);
     }
 
     @Override
@@ -142,16 +140,17 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
             }
             case BUTTON_NAME_REPALCE: {
                 MainFrame frame = (MainFrame) event.getSource();
-                if (frame.getSelectedIndicies().length == 1) {
-                    TaskDialog addEditDialog = new TaskDialog(
-                            frame,"Изменить задачу " + model.getTaskByIndex(frame.getSelectedIndex()).getTitle(), 
-                            false);
-                    taskForEdit = model.getTaskList().get(frame.getSelectedIndex());
-                    addEditDialog.setTask(taskForEdit);
-                    addEditDialog.addActionListener(Controller.this);
-                    addEditDialog.setVisible(true);
-                } else
+                if (frame.getSelectedIndicies().length == 1)
                     error("Выбрано больше одного объекта для изменения!");
+
+                TaskDialog addEditDialog = new TaskDialog(
+                        frame,"Изменить задачу " + model.getTaskByIndex(frame.getSelectedIndex()).getTitle(), 
+                        false);
+                taskForEdit = model.getTaskList().get(frame.getSelectedIndex());
+                addEditDialog.setTask(taskForEdit);
+                addEditDialog.addActionListener(Controller.this);
+                addEditDialog.setVisible(true);
+                    
                 break;
             }
             case BUTTON_NAME_REMOVE: {
@@ -162,30 +161,23 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 break; 
             }
             case BUTTON_NAME_EXIT:        {
-                try {
-                    storeTasksAndExit();
-                } catch (ModelException e) {
-                    error(e.getMessage());
-                }
+                storeTasksAndExit();
                 break;
             }
             case BUTTON_NAME_FIND: {
-                findTaskIndex(((MainFrame) event.getSource()).getFindString());
+                MainFrame frame = (MainFrame) event.getSource();
+                mainFrame.enableInList(model.getTaskIndex(mainFrame.getFindString()));
+                
                 break;
             }
             case BUTTON_NAME_ADD_TASK:    {
                 TaskDialog object = (TaskDialog) event.getSource();
                 model.addNewTask(object.getTask());
                 object.dispose();
-                model.checkTasks();
                 break;
             }
             case BUTTON_NAME_EDIT_TASK:   {
                 TaskDialog object = (TaskDialog) event.getSource();
-                if(model.getTaskList().contains(object.getTask())) {
-                    error("Задача уже присутствует в списке");
-                    return;
-                } 
                 model.replaceTask(taskForEdit, object.getTask());
                 object.dispose();
                 break;
@@ -198,19 +190,13 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 InformDialog object = (InformDialog) event.getSource(); 
                 Task taskToAside = object.getTask();
                 
-                int i = model.getTaskIndex(taskToAside);
-                if(i == -1) {
-                    error("Невозможно найти задачу в базе данных");
-                    return;
-                }
-                
-                Task task = model.getTaskList().get(i);
+                Task task = model.getTaskList().get(
+                        model.getTaskIndex(taskToAside));
                 Date continueTime = new Date(currentTime().getTime() + 5 * 60 * 1000);
                 model.shadowTasksAdd(toDateFormat(continueTime), task);
                 
                 printedTasks.remove(task);
                 object.dispose();
-//                model.notifyObservers();
                 break;
             }
             case BUTTON_NAME_DEACTIVATE:  {
@@ -218,15 +204,9 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 Task taskToDeactivate = object.getTask();
                 int i = model.getTaskIndex(taskToDeactivate);
                 
-                if(i == -1) {
-                    error("Невозможно найти задачу в базе данных");
-                    return;
-                }
-                
                 printedTasks.remove(model.getTaskByIndex(i));
                 model.setTaskActiveStatus(i, false);
                 object.dispose();
-                model.notifyObservers();
                 break;
             }
             default: error("Неизвестное название команды: " + buttonName);
@@ -234,6 +214,5 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         } catch(ModelException e) {
             error(e.toString());
         }
-        model.checkTasks();
     }
 }

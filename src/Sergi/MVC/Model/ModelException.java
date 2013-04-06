@@ -1,4 +1,4 @@
-package Sergi.MVC.Controller;
+package Sergi.MVC.Model;
 
 
 public class ModelException extends Exception {
@@ -15,12 +15,10 @@ public class ModelException extends Exception {
     public ModelException(Exception e) {
         this.e = e;
     }
-    
        
     public ModelException(String errorMessage) {
         string = errorMessage;
     }
-
 
     private String getExceptionDetals(Exception e) {
         StringBuilder str = new StringBuilder(e.getMessage() + "\n");
