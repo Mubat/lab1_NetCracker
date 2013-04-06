@@ -4,7 +4,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class TaskChecking implements Runnable {
+import Sergi.MVC.Tools;
+
+public class TaskChecking extends Tools implements Runnable {
 
 	private int sleepSeconds = 60;
 	private Model model;
@@ -20,6 +22,7 @@ public class TaskChecking implements Runnable {
 		timeAdjustment();
 		for (;;) {
 			model.itsTimeToTask(checkTasks());
+		    model.shadowTaskCheckList(toCurentDateFormat());
 			try {
 				Thread.sleep(1000 * sleepSeconds);
 			} catch (InterruptedException e) {
@@ -60,4 +63,5 @@ public class TaskChecking implements Runnable {
 		}
 		return onsetTasks;
 	}
+	
 }

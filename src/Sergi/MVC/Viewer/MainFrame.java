@@ -35,7 +35,7 @@ public class MainFrame extends JFrame  {
 	private JButton jReplaceButton;
 	private JButton jRemoveButton;
 	private JButton jExitButton;
-	private JList jList;// список задач
+	public JList jList;// список задач
 	private JButton jFindButton;
 	private JTextField jtfFind;
 
@@ -68,7 +68,7 @@ public class MainFrame extends JFrame  {
 						5, 0, 5), 0, 0));
 		addFocusListeners();
 		pack();
-		setMinimumSize(getSize());
+		setResizable(false);
 	}
 
 	private void addWindowListener(WindowAdapter windowEventHandler) {

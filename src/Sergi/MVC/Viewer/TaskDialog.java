@@ -28,6 +28,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import Sergi.MVC.Tools;
 import Sergi.MVC.Controller.ActionListenerTM;
 import Sergi.MVC.Model.Task;
 
@@ -332,12 +333,12 @@ public class TaskDialog extends JDialog {
 	// -----------------------------------------------------------------------------
 	public Task getTask() {
 		Task createdTask = new Task();
-		createdTask.setTitle(this.getTaskName());
-		createdTask.setActive(this.getActiveStatus());
-		createdTask.setStartTime(this.getStartDate());
-		createdTask.setRepeatCount(this.getRepeatValue());
+		createdTask.setTitle      (getTaskName());
+		createdTask.setActive     (getActiveStatus());
+        createdTask.setRepeatCount(getRepeatValue());
+		createdTask.setStartTime  (Tools.toDateFormat(getStartDate()));
 		if(this.getRepeatValue() > 0)
-			createdTask.setEndTime(this.getEndData());
+			createdTask.setEndTime(Tools.toDateFormat(getEndData()));
 		return createdTask; 
 	}
 

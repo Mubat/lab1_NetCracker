@@ -46,7 +46,8 @@ public class InformDialog extends JDialog {
         add(jInformText, BorderLayout.CENTER);
         add(buttonPanel(), BorderLayout.SOUTH);
         this.pack();
-        this.setMinimumSize(this.getSize());
+        this.setMinimumSize(getSize());
+        this.setMaximumSize(getSize());
     }
 
     private Component buttonPanel() {

@@ -52,15 +52,15 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         } catch (ModelException e) {
             MainFrame.showErrorMessage(mainFrame, e.toString());
         }
-        mainFrame = new MainFrame("Диспетчер задач");
-        this.update(model.getTaskList());
+        mainFrame = new MainFrame("Диспетчер задач"); 
+        update(model.getTaskList());
         model.registerObserver(this);
         mainFrame.addActionListener(this);
         mainFrame.addListSelections(this);
         mainFrame.addWindowListener(new WindowListenerTM(this));
+        
         model.startTaskCheking();
         mainFrame.setVisible(true);
-
     }
 
     public static void main(String[] args) {
@@ -131,135 +131,109 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
     public void actionPerformed(ActionEvent event) {
         String actionCommand = event.getActionCommand();
         ButtonNames buttonName = ButtonNames.getType(actionCommand);
-        ActionHandler handler = this.new ActionHandler();
         try {
             switch (buttonName) {
-            case BUTTON_NAME_ADD_DIALOG:  handler.addDialog(); break;
-            case BUTTON_NAME_REPALCE:     handler.editDialog((MainFrame) event.getSource()); break;
-            case BUTTON_NAME_REMOVE:      handler.remove((MainFrame) event.getSource()); break; 
-            case BUTTON_NAME_EXIT:        handler.exit();   break;
-            case BUTTON_NAME_FIND:        handler.find((MainFrame) event.getSource()); break;
-            case BUTTON_NAME_ADD_TASK:    handler.addTask((TaskDialog) event.getSource()); break;
-            case BUTTON_NAME_EDIT_TASK:   handler.editTask((TaskDialog) event.getSource()); break;
-            case BUTTON_NAME_CANCEL_TASK: handler.cancel((TaskDialog) event.getSource()); break;
-            case BUTTON_NAME_SET_ASIDE:   handler.setAside((InformDialog) event.getSource()); break;
-            case BUTTON_NAME_DEACTIVATE:  handler.deactivate((InformDialog) event.getSource()); break;
-            default:                      error("Неизвестное название команды: " + buttonName);
+            case BUTTON_NAME_ADD_DIALOG: {
+                TaskDialog addEditDialog1 = new TaskDialog(mainFrame, false);
+                addEditDialog1.setTask(new Task());
+                addEditDialog1.addActionListener(Controller.this);
+                addEditDialog1.setVisible(true);
+                break;
+            }
+            case BUTTON_NAME_REPALCE: {
+                MainFrame frame = (MainFrame) event.getSource();
+                if (frame.getSelectedIndicies().length == 1) {
+                    TaskDialog addEditDialog = new TaskDialog(
+                            frame,"Изменить задачу " + model.getTaskByIndex(frame.getSelectedIndex()).getTitle(), 
+                            false);
+                    taskForEdit = model.getTaskList().get(frame.getSelectedIndex());
+                    addEditDialog.setTask(taskForEdit);
+                    addEditDialog.addActionListener(Controller.this);
+                    addEditDialog.setVisible(true);
+                } else
+                    error("Выбрано больше одного объекта для изменения!");
+                break;
+            }
+            case BUTTON_NAME_REMOVE: {
+                MainFrame frame = (MainFrame) event.getSource();
+                for (Object task : frame.getSelectasValuesList()) {
+                    model.removeTask((Task) task);
+                }
+                break; 
+            }
+            case BUTTON_NAME_EXIT:        {
+                try {
+                    storeTasksAndExit();
+                } catch (ModelException e) {
+                    error(e.getMessage());
+                }
+                break;
+            }
+            case BUTTON_NAME_FIND: {
+                findTaskIndex(((MainFrame) event.getSource()).getFindString());
+                break;
+            }
+            case BUTTON_NAME_ADD_TASK:    {
+                TaskDialog object = (TaskDialog) event.getSource();
+                model.addNewTask(object.getTask());
+                object.dispose();
+                model.checkTasks();
+                break;
+            }
+            case BUTTON_NAME_EDIT_TASK:   {
+                TaskDialog object = (TaskDialog) event.getSource();
+                if(model.getTaskList().contains(object.getTask())) {
+                    error("Задача уже присутствует в списке");
+                    return;
+                } 
+                model.replaceTask(taskForEdit, object.getTask());
+                object.dispose();
+                break;
+            }
+            case BUTTON_NAME_CANCEL_TASK: {
+                ((TaskDialog) event.getSource()).dispose();
+                break;
+            }
+            case BUTTON_NAME_SET_ASIDE:   {
+                InformDialog object = (InformDialog) event.getSource(); 
+                Task taskToAside = object.getTask();
+                
+                int i = model.getTaskIndex(taskToAside);
+                if(i == -1) {
+                    error("Невозможно найти задачу в базе данных");
+                    return;
+                }
+                
+                Task task = model.getTaskList().get(i);
+                Date continueTime = new Date(currentTime().getTime() + 5 * 60 * 1000);
+                model.shadowTasksAdd(toDateFormat(continueTime), task);
+                
+                printedTasks.remove(task);
+                object.dispose();
+//                model.notifyObservers();
+                break;
+            }
+            case BUTTON_NAME_DEACTIVATE:  {
+                InformDialog object = (InformDialog) event.getSource();
+                Task taskToDeactivate = object.getTask();
+                int i = model.getTaskIndex(taskToDeactivate);
+                
+                if(i == -1) {
+                    error("Невозможно найти задачу в базе данных");
+                    return;
+                }
+                
+                printedTasks.remove(model.getTaskByIndex(i));
+                model.setTaskActiveStatus(i, false);
+                object.dispose();
+                model.notifyObservers();
+                break;
+            }
+            default: error("Неизвестное название команды: " + buttonName);
             }
         } catch(ModelException e) {
             error(e.toString());
         }
         model.checkTasks();
-    }
-    
-    private class ActionHandler {
-
-        public void addDialog(){
-            TaskDialog addEditDialog1 = new TaskDialog(mainFrame, false);
-            addEditDialog1.setTask(new Task());
-            addEditDialog1.addActionListener(Controller.this);
-            addEditDialog1.setVisible(true);
-        }
-
-        public void cancel(TaskDialog object) {
-            object.dispose();
-        }
-
-        public void editTask(TaskDialog object) throws ModelException {
-            if(model.getTaskList().contains(object.getTask())) {
-                error("Задача уже присутствует в списке");
-                return;
-            } 
-            model.replaceTask(taskForEdit, object.getTask());
-            object.dispose();
-        }
-
-        public void addTask(TaskDialog object) {
-            Task task = object.getTask();
-            
-            if (model.contains(task)) {
-                error("Задача уже есть в списке");
-                return;
-            }
-            model.addNewTask(object.getTask());
-            object.dispose();
-            model.checkTasks();
-            
-        }
-
-        public void find(MainFrame object) {
-            findTaskIndex(object.getFindString());
-        }
-
-        public void remove(MainFrame object) {
-            for (Object task : object.getSelectasValuesList()) {
-                model.removeTask((Task) task);
-            }
-        }
-
-        public void editDialog(MainFrame mainFrame){
-            if (mainFrame.getSelectedIndicies().length == 1) {
-                TaskDialog addEditDialog = new TaskDialog(
-                        mainFrame,"Изменить задачу " + model.getTaskByIndex(mainFrame.getSelectedIndex()).getTitle(), 
-                        false);
-                taskForEdit = model.getTaskList().get(mainFrame.getSelectedIndex());
-                addEditDialog.setTask(taskForEdit);
-                addEditDialog.addActionListener(Controller.this);
-                addEditDialog.setVisible(true);
-            } else
-                error("Выбрано больше одного объекта для изменения!");
-        }
-        
-        public void exit(){
-            try {
-                storeTasksAndExit();
-            } catch (ModelException e) {
-                error(e.getMessage());
-            }
-        }
-        
-        public void deactivate(InformDialog object) {
-            Task taskToDeactivate = object.getTask();
-            int i = model.getTaskIndex(taskToDeactivate);
-            
-            if(i == -1) {
-                error("Невозможно найти задачу в базе данных");
-                return;
-            }
-            
-            printedTasks.remove(model.getTaskByIndex(i));
-            model.setTaskActiveStatus(i, false);
-            object.dispose();
-            model.notifyObservers();
-        }
-
-        public void setAside(InformDialog object) {
-            Task taskToAside = object.getTask();
-            
-            int i = model.getTaskIndex(taskToAside);
-            if(i == -1) {
-                error("Невозможно найти задачу в базе данных");
-                return;
-            }
-            
-            Task task = model.getTaskList().get(i);
-            Date continueTime = model.getTaskList().get(i).getTime();
-            continueTime.setTime(Calendar.getInstance().getTime().getTime() + 5 * 60 * 1000);
-            
-            if(!task.isRepeated()) {
-                model.getTaskList().get(i).setTime(continueTime);
-            }
-            else {
-                if(task.getEndTime().after(continueTime))
-                    task.setStartTime(continueTime);
-                else
-                    task.setEndTime(continueTime);
-            }
-            
-            printedTasks.remove(task);
-            object.dispose();
-            model.notifyObservers();
-        }
-        
     }
 }
