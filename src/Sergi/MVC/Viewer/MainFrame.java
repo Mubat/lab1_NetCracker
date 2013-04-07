@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -23,6 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionListener;
 
 import Sergi.MVC.Controller.ActionListenerTM;
+import Sergi.MVC.Model.ModelException;
 
 
 public class MainFrame extends JFrame  {
@@ -35,7 +37,7 @@ public class MainFrame extends JFrame  {
 	private JButton jReplaceButton;
 	private JButton jRemoveButton;
 	private JButton jExitButton;
-	public JList jList;// список задач
+    public JList jList;// список задач
 	private JButton jFindButton;
 	private JTextField jtfFind;
 
@@ -139,7 +141,17 @@ public class MainFrame extends JFrame  {
 		jRemoveButton.addActionListener (new ActionListenerTM(this, 0, listener));
 		jExitButton.addActionListener	(new ActionListenerTM(this, 0, listener));
 		jtfFind.addActionListener		(new ActionListenerTM(this, 0, listener));
-		jFindButton.addActionListener	(new ActionListenerTM(this, 0, listener));
+		
+		jFindButton.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                int i = jList.getNextMatch(getFindString(), 0, javax.swing.text.Position.Bias.Forward);
+                System.out.println("Finded string " + i);
+                jList.setSelectedIndex(i);
+            }
+        });
 		
 		jList.addListSelectionListener((ListSelectionListener) listener);
 	}
@@ -189,7 +201,9 @@ public class MainFrame extends JFrame  {
 		return jList.getSelectedIndices();
 	}
 
-	public int getSelectedIndex() {
+	public int getSelectedIndex() throws ModelException {
+        if (getSelectedIndicies().length != 1)
+            throw new ModelException("Выбрано больше одного объекта для изменения!");
 		return jList.getSelectedIndex();
 	}
 

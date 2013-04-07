@@ -66,6 +66,8 @@ public class TaskDialog extends JDialog {
 
 	private ActionListener listener;
 
+    private Task oldTask;
+
 	// =============================================================================
 	
 	/**
@@ -77,18 +79,25 @@ public class TaskDialog extends JDialog {
 	 *            If true then calls to add and setLayout will be forwarded to
 	 *            the contentPane.
 	 */
-	public TaskDialog(JFrame owner, String windowName, boolean rootPaneCheckingEnabled) {
-		super(owner, windowName, rootPaneCheckingEnabled);
-		this.setName(windowName);
+	public TaskDialog(JFrame owner, Task task, boolean rootPaneCheckingEnabled) {
+		super(owner, rootPaneCheckingEnabled);
 		initComponents();
 		setLocationRelativeTo(owner);
 		this.pack();
 		this.setMinimumSize(this.getSize());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        if(task != null ) {
+            this.setName("Изменить задачу " + task);
+            setTask(task);
+        }
 	}
 
+    // -----------------------------------------------------------------------------
 	public TaskDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
-		this(owner, DEFAULT_WINDOW_NAME, rootPaneCheckingEnabled);
+		this(owner, null, rootPaneCheckingEnabled);
+		setName(DEFAULT_WINDOW_NAME);
+		setTask(new Task());
 	}
 
 	// -----------------------------------------------------------------------------
@@ -257,10 +266,6 @@ public class TaskDialog extends JDialog {
 	}
 
 	// -----------------------------------------------------------------------------
-	private void setTaskName(String taskName) {
-		jTaskName.setText(taskName);
-	}
-
 	private String getTaskName() {
 		return jTaskName.getText();
 	}
@@ -323,13 +328,24 @@ public class TaskDialog extends JDialog {
 
 	// -----------------------------------------------------------------------------
 	public void setTask(Task task) {
-		this.setTaskName(task.getTitle());
-		this.setStartDate(task.getStartTime());
-		this.setEndDate(task.getEndTime());
-		this.setActiveStatus(task.isActive());
-		this.setRepeatInterval(task.getRepeatCount());
+	    setOldTask(task);
+	    jTaskName.setText(task.getTitle());
+		setStartDate(task.getStartTime());
+		setEndDate(task.getEndTime());
+		setActiveStatus(task.isActive());
+		setRepeatInterval(task.getRepeatCount());
 	}
 
+	// -----------------------------------------------------------------------------
+    public void setOldTask(Task oldTask) {
+	    this.oldTask = oldTask;
+	}
+	
+    // -----------------------------------------------------------------------------
+    public Task getOldTask() {
+        return oldTask;
+    }
+    
 	// -----------------------------------------------------------------------------
 	public Task getTask() {
 		Task createdTask = new Task();

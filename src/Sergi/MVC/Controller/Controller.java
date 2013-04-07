@@ -30,7 +30,6 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
     static SimpleDateFormat sdf;
     private static Model model;
     private static MainFrame mainFrame;
-    private Task taskForEdit;
     private ArrayList<Task> printedTasks = new ArrayList<Task>();
                                 // индексы задач, которые уже выведены. 
                                 // Нужно для того, чтобы не выводить одну и ту же
@@ -133,21 +132,17 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
             switch (buttonName) {
             case BUTTON_NAME_ADD_DIALOG: {
                 TaskDialog addEditDialog1 = new TaskDialog(mainFrame, false);
-                addEditDialog1.setTask(new Task());
                 addEditDialog1.addActionListener(Controller.this);
                 addEditDialog1.setVisible(true);
                 break;
             }
             case BUTTON_NAME_REPALCE: {
                 MainFrame frame = (MainFrame) event.getSource();
-                if (frame.getSelectedIndicies().length == 1)
-                    error("Выбрано больше одного объекта для изменения!");
 
                 TaskDialog addEditDialog = new TaskDialog(
-                        frame,"Изменить задачу " + model.getTaskByIndex(frame.getSelectedIndex()).getTitle(), 
+                        frame, model.getTaskList().get(frame.getSelectedIndex()), 
                         false);
-                taskForEdit = model.getTaskList().get(frame.getSelectedIndex());
-                addEditDialog.setTask(taskForEdit);
+                
                 addEditDialog.addActionListener(Controller.this);
                 addEditDialog.setVisible(true);
                     
@@ -164,12 +159,6 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 storeTasksAndExit();
                 break;
             }
-            case BUTTON_NAME_FIND: {
-                MainFrame frame = (MainFrame) event.getSource();
-                mainFrame.enableInList(model.getTaskIndex(mainFrame.getFindString()));
-                
-                break;
-            }
             case BUTTON_NAME_ADD_TASK:    {
                 TaskDialog object = (TaskDialog) event.getSource();
                 model.addNewTask(object.getTask());
@@ -178,7 +167,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
             }
             case BUTTON_NAME_EDIT_TASK:   {
                 TaskDialog object = (TaskDialog) event.getSource();
-                model.replaceTask(taskForEdit, object.getTask());
+                model.replaceTask(object.getOldTask(), object.getTask());
                 object.dispose();
                 break;
             }
