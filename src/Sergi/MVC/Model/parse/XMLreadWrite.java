@@ -98,7 +98,7 @@ public class XMLreadWrite {
 		return arrList;
 	}
 
-	public Document createDocument(Task[] taskArray)
+	public Document createDocument(ArrayList<Task> arrList2)
 			throws ParserConfigurationException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setValidating(true);
@@ -109,35 +109,35 @@ public class XMLreadWrite {
 		Element taskListElement = doc.createElement("taskList");
 		doc.appendChild(taskListElement);
 
-		for (int i = 0; i < taskArray.length; i++) {
+		for (int i = 0; i < arrList2.size(); i++) {
 			Element task = doc.createElement("task");
 			taskListElement.appendChild(task);
 
-			task.setAttribute("name", taskArray[i].getTitle());
+			task.setAttribute("name", arrList2.get(i).getTitle());
 
 			Element date = doc.createElement("date");
 			task.appendChild(date);
 
 			Element fromDate = doc.createElement("from");
-			fromDate.appendChild(doc.createTextNode(sdf.format(taskArray[i]
+			fromDate.appendChild(doc.createTextNode(sdf.format(arrList2.get(i)
 					.getStartTime())));
 			date.appendChild(fromDate);
 
-			if (taskArray[i].isRepeated()) {
+			if (arrList2.get(i).isRepeated()) {
 				Element toDate = doc.createElement("to");
-				toDate.appendChild(doc.createTextNode(sdf.format(taskArray[i]
+				toDate.appendChild(doc.createTextNode(sdf.format(arrList2.get(i)
 						.getEndTime())));
 				date.appendChild(toDate);
 			}
 
 			Element repeats = doc.createElement("repeats");
 			repeats.appendChild(doc.createTextNode(Integer
-					.toString(taskArray[i].getRepeatCount())));
+					.toString(arrList2.get(i).getRepeatCount())));
 			task.appendChild(repeats);
 
 			Element visibility = doc.createElement("visibility");
 			visibility.appendChild(doc.createTextNode(Boolean
-					.toString(taskArray[i].isActive())));
+					.toString(arrList2.get(i).isActive())));
 			task.appendChild(visibility);
 
 		}

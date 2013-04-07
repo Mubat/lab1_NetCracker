@@ -50,7 +50,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         try {
             setLookAndFeel();
         } catch (ModelException e) {
-            MainFrame.showErrorMessage(mainFrame, e.toString());
+            error(mainFrame, e.toString());
         }
         mainFrame = new MainFrame("Диспетчер задач"); 
         update(model.getTaskList());
@@ -73,7 +73,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
 
     public void storeTasksAndExit(){
         try {
-            model.writeTasksToFile(model.getArrayTaskList());
+            model.writeTasksToFile();
             System.exit(0);
         } catch (ModelException e) {
             e.printStackTrace();
@@ -86,7 +86,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         if (value instanceof LinkedList<?>)
             info((LinkedList<Task>) value);
         else if (value instanceof ArrayList<?>)
-            mainFrame.updateList(model.getArrayTaskList());
+            mainFrame.updateList(model.getTaskList().toArray());
         else error("Unexpectable type.");
     }
 
@@ -194,7 +194,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 int i = model.getTaskIndex(taskToDeactivate);
                 
                 printedTasks.remove(model.getTaskByIndex(i));
-                model.setTaskActiveStatus(i, false);
+                taskToDeactivate.setActive(false);
                 object.dispose();
                 break;
             }

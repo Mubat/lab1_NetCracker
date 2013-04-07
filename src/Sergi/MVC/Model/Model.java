@@ -89,18 +89,6 @@ public class Model extends Sergi.MVC.Tools {
 	}
 
 	/**
-	 * Узнать список задач, которые присутствуют в базе данных 
-	 * @return список задач, которые присутствуют в базе данных
-	 */
-	public Task[] getArrayTaskList() {
-		Task[] taskArray = new Task[arrList.size()];
-		for (int i = 0; i < taskArray.length; i++) {
-			taskArray[i] = arrList.get(i);
-		}
-		return taskArray;
-	}
-
-	/**
      * Узнать список задач, которые присутствуют в базе данных 
      * @return список задач, которые присутствуют в базе данных
      */
@@ -120,18 +108,6 @@ public class Model extends Sergi.MVC.Tools {
 		return null;
 	}
 	
-    /**
-     * Найти задачу в базе данных
-     * @param date начальная дата задачи, которую нужно найти (будет найдена первая попавшаяся задача)
-     * @return задачу по её дате начала, либо null - если задача не была найдена 
-     */
-	public Task getTask(Date date) {
-		for (Task task : arrList)
-			if (task.getTime().equals(toDateFormat(date)))
-				return task;
-		return null;
-	}
-
 	/**
 	 * Регистрация наблюдателя из реестра
 	 * @param observer
@@ -198,15 +174,15 @@ public class Model extends Sergi.MVC.Tools {
 	 * @return
 	 * @throws ModelException
 	 */
-	public Document writeTasksToFile(Task[] taskArray) throws ModelException {
-		if (taskArray.length == 0)
+	public Document writeTasksToFile() throws ModelException {
+		if (arrList.size() == 0)
 			return null;
 		try {
 			analyzer = new XMLreadWrite();
 			TransformerFactory transformerFactory = TransformerFactory
 					.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
-			DOMSource source = new DOMSource(analyzer.createDocument(taskArray));
+			DOMSource source = new DOMSource(analyzer.createDocument(arrList));
 			StreamResult result = new StreamResult(new File(fileName));
 
 			transformer.transform(source, result);
@@ -313,41 +289,6 @@ public class Model extends Sergi.MVC.Tools {
         notifyObservers(arrList);
     }
 
-    /**
-     * Установка статуса активности для задачи по её номеру в базе данных
-     * @param taskIndex
-     * @param status
-     */
-    public void setTaskActiveStatus(int taskIndex, boolean status) {
-        if(taskIndex < 0 || taskIndex > arrList.size())
-            error("Cannot change task status. Incorrent taskIndex.");
-        arrList.get(taskIndex).setActive(status);
-        notifyObservers(arrList);
-    }
-    
-    /**
-     * Установка статуса активности для задачи
-     * @param task
-     * @param status
-     * @throws ModelException
-     */
-    public void setTaskActiveStatus(Task task, boolean status) throws ModelException {
-        if(task == null)
-            error("Cannot change task status. Task is null");
-        arrList.get(getTaskIndex(task)).setActive(status);
-        notifyObservers(arrList);
-    }
-    
-    /**
-     * Количество записей в базе данных
-     * @return
-     */
-    public int getSize() {
-        return arrList.size();
-    }
-    
-    
-    
     //================Дальше методы не смотреть============
     
     /**
