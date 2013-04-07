@@ -35,7 +35,7 @@ import Sergi.MVC.Model.parse.XMLreadWrite;
 public class Model extends Sergi.MVC.Tools {
 
 	private ArrayList<MainFrameObserverInterface> addEditObservers = new ArrayList<MainFrameObserverInterface>();
-	private ArrayList<Task> arrList;
+	private ArrayList<Task> arrList; ///база данных задач
 	private HashMap<Date, LinkedList<Task>> shadowMap;// нужно для отсрочки 
 	                                  // (сюда заносятся задачи, которые были продлены на 5 мин.) 
 	                                  // и время, когда была нажата кнопка "Отложить"
@@ -50,6 +50,11 @@ public class Model extends Sergi.MVC.Tools {
 		taskCheking = new TaskChecking(this);
 	}
 
+	/** 
+	 * добавление новой задачи в базу данных
+	 * @param task задача, которую надо добавить
+	 * @throws ModelException ошибка, когда добавляемая задача уже присутствует в списке
+	 */
 	public void addNewTask(Task task) throws ModelException {
 	    if(arrList.contains(task)) 
 	        throw new ModelException("Данная задача уже существет.");
@@ -57,23 +62,36 @@ public class Model extends Sergi.MVC.Tools {
 		notifyObservers(arrList);
 	}
 
-	/*
-	 * public void addNewTask(ArrayList<Task> tasks) { for (Task task : tasks) {
-	 * arrList.add(task); } }
+	/**
+	 * Добавление несколько задач в базу данных
+	 * @param tasks массив задач, которые надо добавить
+	 * @throws ModelException ошибка, когда добавляемая задача уже присутствует в списке
 	 */
-
-	public void addTaskArray(Task[] tasks) {
+	public void addTaskArray(Task[] tasks) throws ModelException {
 		for (int i = 0; i < tasks.length; i++) {
-			arrList.add(tasks[i]);
+			addNewTask(tasks[i]);
 		}
 		notifyObservers(arrList);
 	}
 
-	public void removeTask(Task task) {
+	/**
+	 * Удаление задачи из базы данных
+	 * @param task задача, которая должна быть удалена
+	 * @throws ModelException ошибка, когда такой задачи нет в базе данных
+	 */
+	public void removeTask(Task task) throws ModelException {
+	    if(!arrList.contains(task))
+	        throw new ModelException(
+	                "Ошибка удаления. Задача \"" + task.getTitle() + 
+	                "\" не найдена в базе данных");
 		arrList.remove(task);
 		notifyObservers(arrList);
 	}
 
+	/**
+	 * Узнать список задач, которые присутствуют в базе данных 
+	 * @return список задач, которые присутствуют в базе данных
+	 */
 	public Task[] getArrayTaskList() {
 		Task[] taskArray = new Task[arrList.size()];
 		for (int i = 0; i < taskArray.length; i++) {
@@ -82,10 +100,19 @@ public class Model extends Sergi.MVC.Tools {
 		return taskArray;
 	}
 
+	/**
+     * Узнать список задач, которые присутствуют в базе данных 
+     * @return список задач, которые присутствуют в базе данных
+     */
 	public ArrayList<Task> getTaskList() {
 		return arrList;
 	}
 
+	/**
+	 * Найти задачу в базе данных
+	 * @param name Имя задачи, которую нужно найти (будет найдена первая попавшаяся задача)
+	 * @return задачу по её имени, либо null - если задача не была найдена 
+	 */
 	public Task getTask(String name) {
 		for (Task task : arrList)
 			if (task.getTitle().equals(name))
@@ -93,6 +120,11 @@ public class Model extends Sergi.MVC.Tools {
 		return null;
 	}
 	
+    /**
+     * Найти задачу в базе данных
+     * @param date начальная дата задачи, которую нужно найти (будет найдена первая попавшаяся задача)
+     * @return задачу по её дате начала, либо null - если задача не была найдена 
+     */
 	public Task getTask(Date date) {
 		for (Task task : arrList)
 			if (task.getTime().equals(toDateFormat(date)))
@@ -100,26 +132,46 @@ public class Model extends Sergi.MVC.Tools {
 		return null;
 	}
 
+	/**
+	 * Регистрация наблюдателя из реестра
+	 * @param observer
+	 */
 	public void registerObserver(MainFrameObserverInterface observer) {
 		addEditObservers.add(observer);
 	}
 
+	/**
+	 * Удаление наблюдателя из реестра
+	 * @param observer
+	 */
 	public void removeObserver(MainFrameObserverInterface observer) {
 		addEditObservers.remove(observer);
 	}
 
+	/**
+	 * Оповещение наблюдателей об изменениях
+	 * @param value
+	 */
     public void notifyObservers(Object value) {
         for (MainFrameObserverInterface iterable_element : addEditObservers) {
             iterable_element.update(value);
         }
     }
 
+    /**
+     * Оповещение наблюдателей об изменениях
+     */
     public void notifyObservers() {
         for (MainFrameObserverInterface iterable_element : addEditObservers) {
             iterable_element.update(getTaskList());
         }
     }
 
+    /**
+     * Считывание списка задач из XML файла Tasks.xml
+     * @return
+     * @throws ModelException
+     */
 	private ArrayList<Task> readTasksFromFile() throws ModelException {
 		analyzer = new XMLreadWrite();
 		try {
@@ -140,6 +192,12 @@ public class Model extends Sergi.MVC.Tools {
         }
 	}
 
+	/**
+	 * Запись списка задач в XML файл Tasks.xml (старые данные перетираются)
+	 * @param taskArray
+	 * @return
+	 * @throws ModelException
+	 */
 	public Document writeTasksToFile(Task[] taskArray) throws ModelException {
 		if (taskArray.length == 0)
 			return null;
@@ -163,6 +221,12 @@ public class Model extends Sergi.MVC.Tools {
 		return null;
 	}
 
+	/**
+	 * Возвращает номер позиции задачи в базе данных по её названию
+	 * @param taskTitle
+	 * @return
+	 * @throws ModelException
+	 */
 	public int getTaskIndex(String taskTitle) throws ModelException {
 		for (int i = 0; i < arrList.size(); i++) {
 			if (taskTitle.equals(arrList.get(i).getTitle()))
@@ -171,6 +235,12 @@ public class Model extends Sergi.MVC.Tools {
 		throw new ModelException("Невозможно найти задачу");
 	}
 	
+	/**
+	 * Возвращает номер позиции задачи в базе данных
+	 * @param task
+	 * @return
+	 * @throws ModelException
+	 */
    public int getTaskIndex(Task task) throws ModelException {
         for (int i = 0; i < arrList.size(); i++) {
             if (task.equals(arrList.get(i)))
@@ -179,7 +249,12 @@ public class Model extends Sergi.MVC.Tools {
         throw new ModelException("Невозможно найти задачу в базе данных");
     }
 
-	public void itsTimeToTask(LinkedList<Task> onsetTaskList) {
+   /**
+    * Метод, который выводит информационное окно с задачами, которые наступили
+    * (они передаются в качестве параметра)
+    * @param onsetTaskList
+    */
+   public void itsTimeToTask(LinkedList<Task> onsetTaskList) {
 	    System.out.println("ItsTime: "+ onsetTaskList);
 	    if(!onsetTaskList.isEmpty()) {
 	        notifyObservers(onsetTaskList);
@@ -187,21 +262,29 @@ public class Model extends Sergi.MVC.Tools {
 	    }
 	}
 	
-    public void startTaskCheking() {
+   /**
+    * Запуск наблюдателся задач для вывода их, когда придет их время
+    */
+   public void startTaskCheking() {
 		thread = new Thread(taskCheking);
 		thread.start();
 	}
 	
-//	public void checkTasks() {
-//	    itsTimeToTask(taskCheking.checkTasks());
-//	    notifyObservers(getTaskList());
-//	}
-
-	public Task getTaskByIndex(int selectedIndex) {
+   /**
+    * Метод возвращает задачу из базы данных по её номеру
+    * @param selectedIndex
+    * @return
+    */
+   public Task getTaskByIndex(int selectedIndex) {
 		return arrList.get(selectedIndex);
 	}
 
-	public boolean contains(Task chekingTask) {
+   /**
+    * Проверка, существует ли задача в базе данных
+    * @param chekingTask
+    * @return
+    */
+   public boolean contains(Task chekingTask) {
 		for (Task task : arrList) {
 			if(task.equals(chekingTask))
 				return true;
@@ -209,6 +292,12 @@ public class Model extends Sergi.MVC.Tools {
 		return false;
 	}
 
+   /**
+    * Замена информации о задаче
+    * @param oldTaskData старые данные
+    * @param newTaskData новые данные
+    * @throws ModelException
+    */
     public void replaceTask(Task oldTaskData, Task newTaskData) throws ModelException {
         if(newTaskData == null) 
             throw new ModelException("Ошибка изменения параметров задачи. Новая задача не найдена.");
@@ -224,6 +313,11 @@ public class Model extends Sergi.MVC.Tools {
         notifyObservers(arrList);
     }
 
+    /**
+     * Установка статуса активности для задачи по её номеру в базе данных
+     * @param taskIndex
+     * @param status
+     */
     public void setTaskActiveStatus(int taskIndex, boolean status) {
         if(taskIndex < 0 || taskIndex > arrList.size())
             error("Cannot change task status. Incorrent taskIndex.");
@@ -231,6 +325,12 @@ public class Model extends Sergi.MVC.Tools {
         notifyObservers(arrList);
     }
     
+    /**
+     * Установка статуса активности для задачи
+     * @param task
+     * @param status
+     * @throws ModelException
+     */
     public void setTaskActiveStatus(Task task, boolean status) throws ModelException {
         if(task == null)
             error("Cannot change task status. Task is null");
@@ -238,10 +338,23 @@ public class Model extends Sergi.MVC.Tools {
         notifyObservers(arrList);
     }
     
+    /**
+     * Количество записей в базе данных
+     * @return
+     */
     public int getSize() {
         return arrList.size();
     }
     
+    
+    
+    //================Дальше методы не смотреть============
+    
+    /**
+     * 
+     * @param date
+     * @param task
+     */
     public void shadowTasksAdd(Date date, Task task) {
         LinkedList<Task> list = new LinkedList<Task>();
         if(shadowMap == null) {
