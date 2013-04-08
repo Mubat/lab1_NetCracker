@@ -147,17 +147,13 @@ public class MainFrame extends JFrame  {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                int i = jList.getNextMatch(getFindString(), 0, javax.swing.text.Position.Bias.Forward);
+                int i = jList.getNextMatch(jtfFind.getText(), 0, javax.swing.text.Position.Bias.Forward);
                 System.out.println("Finded string " + i);
                 jList.setSelectedIndex(i);
             }
         });
 		
 		jList.addListSelectionListener((ListSelectionListener) listener);
-	}
-	
-	public String getFindString() {
-		return jtfFind.getText();
 	}
 	
 	private void addFocusListeners() {

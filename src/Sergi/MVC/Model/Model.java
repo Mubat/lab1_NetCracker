@@ -36,9 +36,6 @@ public class Model extends Sergi.MVC.Tools {
 
 	private ArrayList<MainFrameObserverInterface> addEditObservers = new ArrayList<MainFrameObserverInterface>();
 	private ArrayList<Task> arrList; ///база данных задач
-	private HashMap<Date, LinkedList<Task>> shadowMap;// нужно дл€ отсрочки 
-	                                  // (сюда занос€тс€ задачи, которые были продлены на 5 мин.) 
-	                                  // и врем€, когда была нажата кнопка "ќтложить"
 	private String fileName = "Tasks.xml";
 	private XMLreadWrite analyzer;
 	private TaskChecking taskCheking;
@@ -127,8 +124,9 @@ public class Model extends Sergi.MVC.Tools {
 	/**
 	 * ќповещение наблюдателей об изменени€х
 	 * @param value
+	 * @throws ModelException 
 	 */
-    public void notifyObservers(Object value) {
+    public void notifyObservers(Object value) throws ModelException {
         for (MainFrameObserverInterface iterable_element : addEditObservers) {
             iterable_element.update(value);
         }
@@ -136,8 +134,9 @@ public class Model extends Sergi.MVC.Tools {
 
     /**
      * ќповещение наблюдателей об изменени€х
+     * @throws ModelException 
      */
-    public void notifyObservers() {
+    public void notifyObservers() throws ModelException {
         for (MainFrameObserverInterface iterable_element : addEditObservers) {
             iterable_element.update(getTaskList());
         }
@@ -198,7 +197,8 @@ public class Model extends Sergi.MVC.Tools {
 	}
 
 	/**
-	 * ¬озвращает номер позиции задачи в базе данных по еЄ названию
+	 * ¬озвращает номер позиции задачи в базе данных по еЄ названию.
+	 * (ќсторожно! ¬озможны колизии с именами.)
 	 * @param taskTitle
 	 * @return
 	 * @throws ModelException
@@ -229,9 +229,9 @@ public class Model extends Sergi.MVC.Tools {
     * ћетод, который выводит информационное окно с задачами, которые наступили
     * (они передаютс€ в качестве параметра)
     * @param onsetTaskList
+ * @throws ModelException 
     */
-   public void itsTimeToTask(LinkedList<Task> onsetTaskList) {
-	    System.out.println("ItsTime: "+ onsetTaskList);
+   public void itsTimeToTask(LinkedList<Task> onsetTaskList) throws ModelException {
 	    if(!onsetTaskList.isEmpty()) {
 	        notifyObservers(onsetTaskList);
 	        notifyObservers(arrList);
@@ -289,80 +289,4 @@ public class Model extends Sergi.MVC.Tools {
         notifyObservers(arrList);
     }
 
-    //================ƒальше методы не смотреть============
-    
-    /**
-     * 
-     * @param date
-     * @param task
-     */
-    public void shadowTasksAdd(Date date, Task task) {
-        LinkedList<Task> list = new LinkedList<Task>();
-        if(shadowMap == null) {
-            shadowMap = new HashMap<Date, LinkedList<Task>>();
-        }
-        
-        list.add(task);
-        if(shadowMap.containsValue(list))
-            return;
-        if(!shadowMap.isEmpty() &&
-                !shadowMap.get(toDateFormat(date)).isEmpty() && 
-                !shadowMap.get(toDateFormat(date)).contains(task)) {
-            list.addAll(shadowMap.get(toDateFormat(date)));
-            shadowMap.put(toDateFormat(date), list);
-        }
-        System.out.println("[" + toCurentDateFormat() + "]: shadowTaskAdded: " + date + " " + task);
-    }
-    
-    public void shadowTasksRemove() {
-        shadowTasksRemove(toDateFormat(Calendar.getInstance().getTime()));
-    }
-    
-    public void shadowTasksRemove(Date date) {
-        shadowMap.remove(toDateFormat(date));
-    }
-    
-    public void shadowTasksRemove(Date date, Task task) {
-        if(shadowMap.containsKey(toDateFormat(date)))
-            shadowMap.get(toDateFormat(date)).remove(task);
-    }
-    
-    public boolean shadowTasksIsEmpty() {
-        return shadowMap.isEmpty() || shadowMap == null;
-    }
-    
-    /**
-     * ѕроверка, существует ли тенева€ задача в списке или нет
-     * ≈сли така€ задача есть, то еЄ показать.
-     * @param date дата, к которой приписана задача (дата, когда тенева€ задача должна быть показана)
-     * @return теневую задачу, которую нунжно показать; или null если таких теневых задач нет
-     */
-    public LinkedList<Task> shadowTaskCheck(Date date) {
-        if(shadowMap != null && shadowMap.containsKey(date)) {
-            return shadowMap.get(toDateFormat(date));
-        }        
-        return null;
-    }
-    
-    public void shadowTaskCheckList(Date date) {
-        if(shadowMap != null &&
-                !shadowMap.isEmpty() &&
-                shadowMap.containsKey(toDateFormat(date)))
-            itsTimeToTask(shadowMap.get(toDateFormat(date)));
-    }
-    
-    private boolean shadowTasksContainsTask(LinkedList<Task> onsetTaskList) {
-        if(shadowMap == null || shadowMap.isEmpty())
-            return false;
-        Set<Entry<Date, LinkedList<Task>>> allShadowScope = shadowMap.entrySet();
-        for (Entry<Date, LinkedList<Task>> entry : allShadowScope) {
-            for (Task task : entry.getValue()) {
-                for (Task onsetTask : onsetTaskList) {
-                    if(onsetTask.equals(task))
-                        return true;
-                }
-            }
-        }
-        return false;
-    }
 }

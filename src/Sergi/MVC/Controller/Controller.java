@@ -30,6 +30,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
     static SimpleDateFormat sdf;
     private static Model model;
     private static MainFrame mainFrame;
+    private ShadowTasks shadowTasks;
     private ArrayList<Task> printedTasks = new ArrayList<Task>();
                                 // индексы задач, которые уже выведены. 
                                 // Нужно для того, чтобы не выводить одну и ту же
@@ -47,6 +48,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
      */
     public Controller() throws ModelException {
         model = new Model();
+        shadowTasks = new ShadowTasks();
         try {
             setLookAndFeel();
         } catch (ModelException e) {
@@ -67,7 +69,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         try {
             new Controller();
         } catch (ModelException e) {
-            MainFrame.showErrorMessage(mainFrame, e.toString());
+            error(mainFrame, e.toString());
         }
     }
 
@@ -76,13 +78,13 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
             model.writeTasksToFile();
             System.exit(0);
         } catch (ModelException e) {
-            e.printStackTrace();
+            error(e.toString());
         }
 
     }
 
     @Override
-    public void update(Object value) {
+    public void update(Object value) throws ModelException {
         if (value instanceof LinkedList<?>)
             info((LinkedList<Task>) value);
         else if (value instanceof ArrayList<?>)
@@ -90,19 +92,30 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         else error("Unexpectable type.");
     }
 
-    private void info(LinkedList<Task> values) {
+    private void info(LinkedList<Task> values) throws ModelException {
         for (Task task : values) {
-            if(!printedTasks.contains(task)) {
-                printedTasks.add(task);
-                InformDialog informFrame = new InformDialog(mainFrame, false, task);
-                informFrame.setLocationRelativeTo(mainFrame);
-                informFrame.addActionListener(this);
-                informFrame.setVisible(true);
+            if(!printedTasks.contains(task) 
+               && !shadowTasks.containsTask(task)) {
+                showInformDialog(task);
             }
         }
+        
+        if(!shadowTasks.isEmpty() && shadowTasks.containsTasksByDate(toCurentDateFormat()))
+            for(Task shadowTask : shadowTasks.getShadowList(toCurentDateFormat())) {
+                showInformDialog(shadowTask);
+                shadowTasks.remove(toCurentDateFormat(), shadowTask);
+            }
         update(model.getTaskList());
     }
-
+    
+    private void showInformDialog(Task task) {
+        printedTasks.add(task);
+        InformDialog informFrame = new InformDialog(null, false, task);
+        informFrame.setLocationRelativeTo(mainFrame);
+        informFrame.addActionListener(this);
+        informFrame.setVisible(true);
+    }
+    
     @Override
     public void valueChanged(ListSelectionEvent arg0) {
         mainFrame.setButtonEnabled(
@@ -182,8 +195,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 Task task = model.getTaskList().get(
                         model.getTaskIndex(taskToAside));
                 Date continueTime = new Date(currentTime().getTime() + 5 * 60 * 1000);
-                model.shadowTasksAdd(toDateFormat(continueTime), task);
-                
+                shadowTasks.add(continueTime, task);
                 printedTasks.remove(task);
                 object.dispose();
                 break;
@@ -204,4 +216,27 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
             error(e.toString());
         }
     }
+    
+ /*   //=========ShadowTasks================
+
+    protected void shadowTasksAdd(Date date, Task task) {
+        shadowTasks.add(date, task);
+    }
+
+    protected boolean shadowTasksRemove(Date date, Task task) throws ModelException {
+        return shadowTasks.remove(date, task);
+    }
+
+    protected boolean shadowTasksIsEmpty() {
+        return shadowTasks.isEmpty();
+    }
+
+    protected boolean shadowTasksContainsTask(Task onsetTask) throws ModelException {
+        return shadowTasks.containsTask(onsetTask);
+    }
+
+    protected LinkedList<Task> ShadowTasksGetShadowList(Date dueDate) { 
+        return shadowTasks.getShadowList(dueDate);
+    }
+*/
 }

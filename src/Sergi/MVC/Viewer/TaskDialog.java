@@ -6,7 +6,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
@@ -63,8 +62,6 @@ public class TaskDialog extends JDialog {
 
 	private JRadioButton jRadioYes;
 	private JRadioButton jRadioNo;
-
-	private ActionListener listener;
 
     private Task oldTask;
 
@@ -161,16 +158,6 @@ public class TaskDialog extends JDialog {
 
 	// -----------------------------------------------------------------------------
 	/**
-	 * метод для сворачивания диалога
-	 * 
-	 * @param evt
-	 */
-	public void jButtonMouseClicked() {
-		this.dispose();
-	}
-
-	// -----------------------------------------------------------------------------
-	/**
 	 * Создание панели для выбора начала и окончания действия задачи Имеет вид:
 	 * <html>
 	 * <table border='1px'>
@@ -256,24 +243,10 @@ public class TaskDialog extends JDialog {
 	 * Метод объявления слушателей для кнопок
 	 */
 	public void addActionListener(ActionListener listener) {
-		this.listener = listener;
 		jAddButton.addActionListener	(new ActionListenerTM(this, 0, listener));
 		jCancelButton.addActionListener (new ActionListenerTM(this, 0, listener));
 	}
 	
-	private void setListener() {
-		jAddButton.addActionListener(new ActionListenerTM(this, 0));
-	}
-
-	// -----------------------------------------------------------------------------
-	private String getTaskName() {
-		return jTaskName.getText();
-	}
-
-	private int getRepeatValue() {
-		return (Integer) jSpinner.getValue();
-	}
-
 	// -----------------------------------------------------------------------------
 	private Date getStartDate() {
 		Calendar cal = new GregorianCalendar();
@@ -290,11 +263,6 @@ public class TaskDialog extends JDialog {
 		cal.set(Calendar.HOUR_OF_DAY, (Integer) jHourEnd.getSelectedItem());
 		cal.set(Calendar.MINUTE, (Integer) jMinuteEnd.getSelectedItem());
 		return cal.getTime();
-	}
-
-	// -----------------------------------------------------------------------------
-	private boolean getActiveStatus() {
-		return jRadioYes.isSelected();
 	}
 
 	// -----------------------------------------------------------------------------
@@ -316,11 +284,6 @@ public class TaskDialog extends JDialog {
 	}
 
 	// -----------------------------------------------------------------------------
-	private void setRepeatInterval(int repeats) {
-		jSpinner.setValue(repeats);
-	}
-
-	// -----------------------------------------------------------------------------
 	private void setActiveStatus(boolean isActive) {
 		jRadioYes.setSelected(isActive);
 		jRadioNo.setSelected(!isActive);
@@ -333,7 +296,7 @@ public class TaskDialog extends JDialog {
 		setStartDate(task.getStartTime());
 		setEndDate(task.getEndTime());
 		setActiveStatus(task.isActive());
-		setRepeatInterval(task.getRepeatCount());
+		jSpinner.setValue(task.getRepeatCount());
 	}
 
 	// -----------------------------------------------------------------------------
@@ -349,11 +312,11 @@ public class TaskDialog extends JDialog {
 	// -----------------------------------------------------------------------------
 	public Task getTask() {
 		Task createdTask = new Task();
-		createdTask.setTitle      (getTaskName());
-		createdTask.setActive     (getActiveStatus());
-        createdTask.setRepeatCount(getRepeatValue());
+		createdTask.setTitle      (jTaskName.getText());
+		createdTask.setActive     (jRadioYes.isSelected());
+        createdTask.setRepeatCount((Integer) jSpinner.getValue());
 		createdTask.setStartTime  (Tools.toDateFormat(getStartDate()));
-		if(this.getRepeatValue() > 0)
+		if((Integer) jSpinner.getValue() > 0)
 			createdTask.setEndTime(Tools.toDateFormat(getEndData()));
 		return createdTask; 
 	}

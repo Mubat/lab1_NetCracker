@@ -11,24 +11,27 @@ public class TaskChecking extends Tools implements Runnable {
 	private int sleepSeconds = 60;
 	private Model model;
 
-	public TaskChecking(Model model) {
+	protected TaskChecking(Model model) {
 		this.model = model;
 
 	}
 
 	@Override
 	public void run() {
-	    model.itsTimeToTask(checkTasks());
-		timeAdjustment();
-		for (;;) {
-			model.itsTimeToTask(checkTasks());
-		    model.shadowTaskCheckList(toCurentDateFormat());
-			try {
-				Thread.sleep(1000 * sleepSeconds);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+	    try {
+	        model.itsTimeToTask(checkTasks());
+	        timeAdjustment();
+    		for (;;) {
+    			model.itsTimeToTask(checkTasks());
+    			try {
+    				Thread.sleep(1000 * sleepSeconds);
+    			} catch (InterruptedException e) {
+    				e.printStackTrace();
+    			}
+    		}
+	    } catch (ModelException e ) {
+	        error(e.toString());
+	    }
 	}
 
 	private void timeAdjustment() {
@@ -41,7 +44,7 @@ public class TaskChecking extends Tools implements Runnable {
 		}
 	}
 	
-	public LinkedList<Task> checkTasks() {
+	protected LinkedList<Task> checkTasks() {
 		LinkedList<Task> onsetTasks = new LinkedList<Task>();
 		for (Task task : model.getTaskList()) {
 			if (!task.isActive())
