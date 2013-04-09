@@ -33,6 +33,11 @@ import Sergi.MVC.Model.Task;
 
 import com.toedter.calendar.JDateChooser;
 
+/**
+ * Class who represent form to add or edit task
+ * @author Oleg Sergienko
+ *
+ */
 public class TaskDialog extends JDialog {
 
 	private static final long serialVersionUID = 1630046389235533533L;
@@ -69,7 +74,7 @@ public class TaskDialog extends JDialog {
 	
 	/**
 	 * @param owner
-	 *            - the owner Dialog from which the dialog is displayed or null
+	 *            the owner Dialog from which the dialog is displayed or null
 	 *            if this dialog has no owner
 	 * @param windowName name of Dialog window
 	 * @param rootPaneCheckingEnabled
@@ -91,6 +96,15 @@ public class TaskDialog extends JDialog {
 	}
 
     // -----------------------------------------------------------------------------
+    /**
+     * @param owner
+     *            the owner Dialog from which the dialog is displayed or null
+     *            if this dialog has no owner
+     * @param rootPaneCheckingEnabled
+     *            If true then calls to add and setLayout will be forwarded to
+     *            the contentPane.
+     */
+
 	public TaskDialog(JFrame owner, boolean rootPaneCheckingEnabled) {
 		this(owner, null, rootPaneCheckingEnabled);
 		setName(DEFAULT_WINDOW_NAME);
@@ -240,7 +254,8 @@ public class TaskDialog extends JDialog {
 
 	// -----------------------------------------------------------------------------
 	/**
-	 * Метод объявления слушателей для кнопок
+	 * Method of declaring a listener for the buttons
+	 * @param listener listener who will respond to button presses
 	 */
 	public void addActionListener(ActionListener listener) {
 		jAddButton.addActionListener	(new ActionListenerTM(this, 0, listener));
@@ -290,6 +305,10 @@ public class TaskDialog extends JDialog {
 	}
 
 	// -----------------------------------------------------------------------------
+	/**
+	 * Data entry task you want to edit
+	 * @param task Data of the task
+	 */
 	public void setTask(Task task) {
 	    setOldTask(task);
 	    jTaskName.setText(task.getTitle());
@@ -300,16 +319,24 @@ public class TaskDialog extends JDialog {
 	}
 
 	// -----------------------------------------------------------------------------
-    public void setOldTask(Task oldTask) {
+    private void setOldTask(Task oldTask) {
 	    this.oldTask = oldTask;
 	}
 	
     // -----------------------------------------------------------------------------
+    /**
+     * find out what the task was edited
+     * @return the initial view of the task (before editing) 
+     */
     public Task getOldTask() {
         return oldTask;
     }
     
 	// -----------------------------------------------------------------------------
+    /**
+     * Returns the final form of the task
+     * @return the final edited form of the task (after editing)
+     */
 	public Task getTask() {
 		Task createdTask = new Task();
 		createdTask.setTitle      (jTaskName.getText());

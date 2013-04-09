@@ -21,8 +21,8 @@ public class Tools {
      * @param frame фрейм, к которому будет привязано сообщение об ошибке.
      * @param errorString Сообщение об ошибке, которое будет выведено.
      */
-    public static void error(JFrame frame, String errorString) {
-        MainFrame.showErrorMessage(frame, errorString);
+    public static void error(JFrame frame, Object errorString) {
+        MainFrame.showErrorMessage(frame, errorString.toString());
     }
 
     /**

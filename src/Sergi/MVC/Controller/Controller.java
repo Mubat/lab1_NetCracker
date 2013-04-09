@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -24,17 +23,18 @@ import Sergi.MVC.Viewer.TaskDialog;
 
 //сделать проверку, что наступившая задача уже показывается
 
-public class Controller extends Tools implements ActionListener, MainFrameObserverInterface,
-        ListSelectionListener {
+public class Controller extends Tools implements ActionListener,
+        MainFrameObserverInterface, ListSelectionListener {
 
     static SimpleDateFormat sdf;
     private static Model model;
     private static MainFrame mainFrame;
     private ShadowTasks shadowTasks;
     private ArrayList<Task> printedTasks = new ArrayList<Task>();
-                                // индексы задач, которые уже выведены. 
-                                // Нужно для того, чтобы не выводить одну и ту же
-                                // задачу несколько раз
+
+    // индексы задач, которые уже выведены.
+    // Нужно для того, чтобы не выводить одну и ту же
+    // задачу несколько раз
     /**
      * 
      * @throws ClassNotFoundException
@@ -54,13 +54,13 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         } catch (ModelException e) {
             error(mainFrame, e.toString());
         }
-        mainFrame = new MainFrame("Диспетчер задач"); 
+        mainFrame = new MainFrame("Диспетчер задач");
         update(model.getTaskList());
         model.registerObserver(this);
         mainFrame.addActionListener(this);
         mainFrame.addListSelections(this);
         mainFrame.addWindowListener(new WindowListenerTM(this));
-        
+
         model.startTaskCheking();
         mainFrame.setVisible(true);
     }
@@ -73,7 +73,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
         }
     }
 
-    public void storeTasksAndExit(){
+    public void storeTasksAndExit() {
         try {
             model.writeTasksToFile();
             System.exit(0);
@@ -84,38 +84,45 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
     }
 
     @Override
-    public void update(Object value) throws ModelException {
-        if (value instanceof LinkedList<?>)
-            info((LinkedList<Task>) value);
-        else if (value instanceof ArrayList<?>)
-            mainFrame.updateList(model.getTaskList().toArray());
-        else error("Unexpectable type.");
+    public void update(Object value) {
+        try {
+            if(value instanceof ModelException)
+                throw (ModelException) value;
+            if (value instanceof LinkedList<?>)
+                info((LinkedList<Task>) value);
+            else if (value instanceof ArrayList<?>)
+                mainFrame.updateList(model.getTaskList().toArray());
+            else
+                error("Unexpectable type.");
+        } catch (ModelException e) {
+            error(mainFrame, value);
+        }
     }
 
     private void info(LinkedList<Task> values) throws ModelException {
         for (Task task : values) {
-            if(!printedTasks.contains(task) 
-               && !shadowTasks.containsTask(task)) {
+            if (!printedTasks.contains(task) && !shadowTasks.containsTask(task)) {
                 showInformDialog(task);
             }
         }
-        
-        if(!shadowTasks.isEmpty() && shadowTasks.containsTasksByDate(toCurentDateFormat()))
-            for(Task shadowTask : shadowTasks.getShadowList(toCurentDateFormat())) {
+
+        if (!shadowTasks.isEmpty()
+                && shadowTasks.containsTasksByDate(toCurentDateFormat()))
+            for (Task shadowTask : shadowTasks
+                    .getShadowList(toCurentDateFormat())) {
                 showInformDialog(shadowTask);
                 shadowTasks.remove(toCurentDateFormat(), shadowTask);
             }
-        update(model.getTaskList());
     }
-    
+
     private void showInformDialog(Task task) {
         printedTasks.add(task);
-        InformDialog informFrame = new InformDialog(null, false, task);
+        InformDialog informFrame = new InformDialog(mainFrame, false, task);
         informFrame.setLocationRelativeTo(mainFrame);
         informFrame.addActionListener(this);
         informFrame.setVisible(true);
     }
-    
+
     @Override
     public void valueChanged(ListSelectionEvent arg0) {
         mainFrame.setButtonEnabled(
@@ -124,8 +131,7 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
 
     private static void setLookAndFeel() throws ModelException {
         try {
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
             throw new ModelException(e, "Файл со стилем не найден");
         } catch (InstantiationException e) {
@@ -152,13 +158,12 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
             case BUTTON_NAME_REPALCE: {
                 MainFrame frame = (MainFrame) event.getSource();
 
-                TaskDialog addEditDialog = new TaskDialog(
-                        frame, model.getTaskList().get(frame.getSelectedIndex()), 
-                        false);
-                
+                TaskDialog addEditDialog = new TaskDialog(frame, model
+                        .getTaskList().get(frame.getSelectedIndex()), false);
+
                 addEditDialog.addActionListener(Controller.this);
                 addEditDialog.setVisible(true);
-                    
+
                 break;
             }
             case BUTTON_NAME_REMOVE: {
@@ -166,19 +171,19 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 for (Object task : frame.getSelectasValuesList()) {
                     model.removeTask((Task) task);
                 }
-                break; 
+                break;
             }
-            case BUTTON_NAME_EXIT:        {
+            case BUTTON_NAME_EXIT: {
                 storeTasksAndExit();
                 break;
             }
-            case BUTTON_NAME_ADD_TASK:    {
+            case BUTTON_NAME_ADD_TASK: {
                 TaskDialog object = (TaskDialog) event.getSource();
                 model.addNewTask(object.getTask());
                 object.dispose();
                 break;
             }
-            case BUTTON_NAME_EDIT_TASK:   {
+            case BUTTON_NAME_EDIT_TASK: {
                 TaskDialog object = (TaskDialog) event.getSource();
                 model.replaceTask(object.getOldTask(), object.getTask());
                 object.dispose();
@@ -188,55 +193,52 @@ public class Controller extends Tools implements ActionListener, MainFrameObserv
                 ((TaskDialog) event.getSource()).dispose();
                 break;
             }
-            case BUTTON_NAME_SET_ASIDE:   {
-                InformDialog object = (InformDialog) event.getSource(); 
+            case BUTTON_NAME_SET_ASIDE: {
+                InformDialog object = (InformDialog) event.getSource();
                 Task taskToAside = object.getTask();
-                
+
                 Task task = model.getTaskList().get(
                         model.getTaskIndex(taskToAside));
-                Date continueTime = new Date(currentTime().getTime() + 5 * 60 * 1000);
+                Date continueTime = new Date(
+                        currentTime().getTime() + 5 * 60 * 1000);
                 shadowTasks.add(continueTime, task);
                 printedTasks.remove(task);
                 object.dispose();
                 break;
             }
-            case BUTTON_NAME_DEACTIVATE:  {
+            case BUTTON_NAME_DEACTIVATE: {
                 InformDialog object = (InformDialog) event.getSource();
                 Task taskToDeactivate = object.getTask();
                 int i = model.getTaskIndex(taskToDeactivate);
-                
+
                 printedTasks.remove(model.getTaskByIndex(i));
                 taskToDeactivate.setActive(false);
                 object.dispose();
                 break;
             }
-            default: error("Неизвестное название команды: " + buttonName);
+            default:
+                error("Неизвестное название команды: " + buttonName);
             }
-        } catch(ModelException e) {
+        } catch (ModelException e) {
             error(e.toString());
         }
     }
-    
- /*   //=========ShadowTasks================
 
-    protected void shadowTasksAdd(Date date, Task task) {
-        shadowTasks.add(date, task);
-    }
-
-    protected boolean shadowTasksRemove(Date date, Task task) throws ModelException {
-        return shadowTasks.remove(date, task);
-    }
-
-    protected boolean shadowTasksIsEmpty() {
-        return shadowTasks.isEmpty();
-    }
-
-    protected boolean shadowTasksContainsTask(Task onsetTask) throws ModelException {
-        return shadowTasks.containsTask(onsetTask);
-    }
-
-    protected LinkedList<Task> ShadowTasksGetShadowList(Date dueDate) { 
-        return shadowTasks.getShadowList(dueDate);
-    }
-*/
+    /*
+     * //=========ShadowTasks================
+     * 
+     * protected void shadowTasksAdd(Date date, Task task) {
+     * shadowTasks.add(date, task); }
+     * 
+     * protected boolean shadowTasksRemove(Date date, Task task) throws
+     * ModelException { return shadowTasks.remove(date, task); }
+     * 
+     * protected boolean shadowTasksIsEmpty() { return shadowTasks.isEmpty(); }
+     * 
+     * protected boolean shadowTasksContainsTask(Task onsetTask) throws
+     * ModelException { return shadowTasks.containsTask(onsetTask); }
+     * 
+     * protected LinkedList<Task> ShadowTasksGetShadowList(Date dueDate) {
+     * return shadowTasks.getShadowList(dueDate); }
+     */
 }
