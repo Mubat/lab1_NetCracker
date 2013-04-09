@@ -16,10 +16,6 @@ public class TaskChecking extends Tools implements Runnable {
     private int sleepSeconds = 60;
     private Model model;
 
-    /**
-     * 
-     * @param model Main class of model.
-     */
     protected TaskChecking(Model model) {
         this.model = model;
 

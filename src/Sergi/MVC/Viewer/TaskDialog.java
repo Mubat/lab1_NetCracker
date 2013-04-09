@@ -348,7 +348,7 @@ public class TaskDialog extends JDialog {
 		return createdTask; 
 	}
 
-	// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 	private class RepeatSpinnerModel implements SpinnerModel {
 		List<ChangeListener> listenerList = new LinkedList<ChangeListener>();
 		int value = 1;

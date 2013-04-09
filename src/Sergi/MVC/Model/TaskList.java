@@ -92,5 +92,4 @@ public abstract class TaskList implements Iterable<Task>,Serializable, Cloneable
         else 
             return false;
     }
-//------------------------------------------------------------     
 }

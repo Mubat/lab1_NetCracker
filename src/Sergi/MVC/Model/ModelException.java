@@ -1,6 +1,10 @@
 package Sergi.MVC.Model;
 
-
+/** 
+ * wrapper class for all exceptions that may occur in the program
+ * @author Mubat
+ *
+ */
 public class ModelException extends Exception {
 
     Exception e = new Exception();

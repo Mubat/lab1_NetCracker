@@ -26,7 +26,11 @@ import javax.swing.event.ListSelectionListener;
 import Sergi.MVC.Controller.ActionListenerTM;
 import Sergi.MVC.Model.ModelException;
 
-
+/**
+ * class that forms the main window of the program
+ * @author Mubat
+ *
+ */
 public class MainFrame extends JFrame  {
 
 	private static final long serialVersionUID = 1L;
@@ -41,12 +45,16 @@ public class MainFrame extends JFrame  {
 	private JButton jFindButton;
 	private JTextField jtfFind;
 
+	/**
+	 * 
+	 * @param title Name of the window
+	 */
 	public MainFrame(String title) {
 		super(title);
 		initComponents();
 	}
 
-	public void initComponents() {
+	private void initComponents() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
 		
@@ -72,11 +80,6 @@ public class MainFrame extends JFrame  {
 		pack();
 		setResizable(false);
 	}
-
-	private void addWindowListener(WindowAdapter windowEventHandler) {
-	    this.addWindowListener(windowEventHandler);
-	           
-    }
 
     private void initMainPanel(JPanel panel) {
 		JLabel text = new JLabel("Список задач", JLabel.CENTER);
@@ -131,10 +134,10 @@ public class MainFrame extends JFrame  {
 						5, 5, 5), 0, 0));
 	}
 
-	/**
-	 * 
-	 * @param listener ActionListener & ListSelectionListener
-	 */
+    /**
+     * Method of declaring a listener for the buttons
+     * @param listener listener who will respond to button presses
+     */
 	public void addActionListener(ActionListener listener) {
 		jAddButton.addActionListener	(new ActionListenerTM(this, 0, listener));
 		jReplaceButton.addActionListener(new ActionListenerTM(this, 0, listener));
@@ -177,10 +180,18 @@ public class MainFrame extends JFrame  {
 		});
 	}
 
+	/**
+	 * allocate the selected task in the list
+	 * @param index position you want to allocate tasks
+	 */
 	public void enableInList(int index) {
 		jList.setSelectedIndex(index);
 	}
 	
+	/**
+	 * updated list to the user. If the list is not empty, then it is deleted and stored as transmitted method
+	 * @param listData list of tasks that need to display the List
+	 */
 	public void updateList(Object[] listData) {
 		jList.clearSelection();
 		jList.setListData(listData);
@@ -188,25 +199,38 @@ public class MainFrame extends JFrame  {
 		 
 	}
 	
-	public static void showErrorMessage(Component component,String errorString) {
-		JOptionPane.showMessageDialog(component,
-				errorString, "Ошибка!", JOptionPane.ERROR_MESSAGE);
-	}
-
+	/**
+	 * The method returns the number of selected objects in the window
+	 * @return an indexies of the objects that are selected at the moment
+	 */
 	public int[] getSelectedIndicies() {
 		return jList.getSelectedIndices();
 	}
 
+	/**
+	 * number in list of object who is seected in window
+	 * @return number in list of object who is seected in window 
+	 * @throws ModelException An error occurs if more than one object or selected objects missing
+	 */
 	public int getSelectedIndex() throws ModelException {
         if (getSelectedIndicies().length != 1)
             throw new ModelException("Выбрано больше одного объекта для изменения!");
 		return jList.getSelectedIndex();
 	}
 
-	public List<Object> getSelectasValuesList() {
+	/**
+	 * Return list of tasks who is selected in window
+	 * @return List of tasks who is selected in window
+	 */
+	public List<Object> getSelectedValuesList() {
 		return Arrays.asList(jList.getSelectedValues());
 	}
 
+	/**
+	 * Enable or disabe some button
+	 * @param buttonName Name of the button you want to activate or deactivate
+	 * @param b <b>true</b> If you want to activate or <b>false</b> if you want to deactivate
+	 */
 	public void setButtonEnabled(String buttonName, boolean b) {
 		if(jAddButton.getText().equals(buttonName)) {
 			jAddButton.setEnabled(b);
@@ -222,9 +246,12 @@ public class MainFrame extends JFrame  {
 		}
 	}
 
+	/**
+	 * Register List Selection Listener
+	 * @param listener
+	 */
 	public void addListSelections(ListSelectionListener listener) {
 		jList.addListSelectionListener(listener);
-		
 	}
 
 	/** (non-Javadoc)

@@ -11,10 +11,15 @@ import Sergi.MVC.Model.Model;
 import Sergi.MVC.Model.ModelException;
 import Sergi.MVC.Model.Task;
 
+/**
+ * class that implements the mechanism of <b>shadow tasks</b>.
+ * <b>Shadow task</b> is the task link that can be given in 5 minutes
+ * @author Mubat
+ *
+ */
 public class ShadowTasks extends Tools {
 
-    public HashMap<Date, LinkedList<Task>> shadowMap;// нужно для отсрочки
-
+    private HashMap<Date, LinkedList<Task>> shadowMap;// нужно для отсрочки
     // (сюда заносятся задачи, которые были продлены на 5 мин.)
     // и время, когда нужно показать еще раз задачу
 
@@ -23,12 +28,12 @@ public class ShadowTasks extends Tools {
     }
 
     /**
-     * Добавление теневой задачи
+     * Adding a shadow  task
      * 
      * @param date
-     *            дата, когда нужно показать задачу еще раз
+     *            Date when to show the task again
      * @param task
-     *            задача, которую нужно показать
+     *            a task that must be shown
      */
     protected void add(Date date, Task task) {
         LinkedList<Task> list = new LinkedList<Task>();
@@ -47,16 +52,15 @@ public class ShadowTasks extends Tools {
     }
 
     /**
-     * Удалить теневую задачу
+     * Remove a task from the shadow register
      * 
      * @param date
-     *            дата, когда задача, которую нужно удалить, должна быть
-     *            показана
+     *            the date when the task to be removed should be shows
      * @param task
-     *            задача, которую нужно удалить
+     *            the task to be deleted
      * @throws ModelException
-     *             Не найдена указанная дата, либо не найдена задача по
-     *             указанной дате.
+     *             Unable to find the specified date, or is not found on task
+      *            Specified date.
      */
     protected boolean remove(Date date, Task task) throws ModelException {
         if (!shadowMap.containsKey(toDateFormat(date)))
@@ -73,16 +77,12 @@ public class ShadowTasks extends Tools {
     }
 
     /**
-     * Проверка, существует ли теневая задача в списке или нет Если такая задача
-     * есть, то её показать.
+     * Check whether there is a shadow task list or not if there is such a problem,
+     * then show it.
      * 
-     * @param date
-     *            дата, к которой приписана задача (дата, когда теневая задача
-     *            должна быть показана)
-     * @return теневую задачу, которую нунжно показать; или null если таких
-     *         теневых задач нет
-     * @throws ModelException
-     *             если onsetTask = null.
+     * @param date The date by which the task is assigned (the date when the shadow task must be shown)
+     * @return shadow task you want to display, or null if there are no problems of shadow
+     * @throws ModelException if onsetTask = null.
      */
     protected boolean containsTask(Task onsetTask) throws ModelException {
         if (onsetTask == null)
@@ -106,27 +106,29 @@ public class ShadowTasks extends Tools {
      * Returns the value to which the specified date is mapped, or null if this
      * map contains no mapping for the key.
      * 
-     * @param dueDate
-     *            дата, по которой вернется список теневых задач
-     * @return список теневых задач или null, если задач по данной дате не
-     *         найдено
+     * @param dueDate the date on which returns a list of shadow tasks
+     * @return List of shadow tasks or null, if the problems on this date not found
      */
     protected LinkedList<Task> getShadowList(Date dueDate) {
         return shadowMap.get(toDateFormat(dueDate));
     }
 
+    /**
+     * Check whether there is a shadow task list or not if there is such a problem,
+     * then show it.
+     * @param dueDate date on which tasks are shady
+     * @return List of shadow tasks that correspond to the date
+     */
     public boolean containsTasksByDate(Date dueDate) {
         return shadowMap.containsKey(toDateFormat(dueDate));
     }
 
     /**
-     * Узнать дату, к которой приписана задача.
+     * Check dates to which is assigned the task.
      * 
      * @param oncetTask
-     * @return дату, к которой приписана задача (дату, когда задача должна быть
-     *         показана).
-     * @throws ModelException
-     *             Если задача не была найдена.
+     * @return the date by which the task is assigned (the date when the task must be shown).
+     * @throws ModelException If the problem has not been found.
      */
     public Date getDateByTask(Task oncetTask) throws ModelException {
         if (!containsTask(oncetTask))

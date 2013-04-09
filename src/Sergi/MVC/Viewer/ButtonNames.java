@@ -1,5 +1,10 @@
 package Sergi.MVC.Viewer;
 
+/**
+ * assembly of all the labels that are used in the program
+ * @author Mubat
+ *
+ */
 public enum ButtonNames {
 	BUTTON_NAME_ADD_DIALOG  ("<html><body align = center>Добавить<br>новую задачу</body></html>"), 
 	BUTTON_NAME_REPALCE		("<html><body align = center>Редактировать<br/>задачу</body></html>"), 
@@ -19,17 +24,27 @@ public enum ButtonNames {
 		this.buttonName = buttonName;
 	}
 
+	/**
+	 * method returns the string value of the button name
+	 * @return the string value of the button name
+	 */
 	public String getTypeValue() {
 		return buttonName;
 	}
 	
+	/**
+	 * method returns an enum value from its string value of the button name
+	 * @param pType string name of the button
+	 * @return enum value from its string value of the button name   
+	 * @throws RuntimeException unknown Name of the button
+	 */
     static public ButtonNames getType(String pType) throws RuntimeException {
         for (ButtonNames type: ButtonNames.values()) {
             if (type.getTypeValue().equals(pType)) {
                 return type;
             }
         }
-        throw new RuntimeException("unknown type");
+        throw new RuntimeException("unknown Name of the button");
     }
 
 

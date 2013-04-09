@@ -318,6 +318,10 @@ public class Model extends Sergi.MVC.Tools {
         notifyObservers(arrList);
     }
 
+    /**
+     * method notifies all observers of an exception that is passed as a parameter
+     * @param e exception to be passed
+     */
     public void updateException(ModelException e) {
         notifyObservers(e);
     }

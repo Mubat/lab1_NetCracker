@@ -98,7 +98,13 @@ public class XMLreadWrite {
 		return arrList;
 	}
 
-	public Document createDocument(ArrayList<Task> arrList2)
+	/**
+	 * creation of the DOM document from the list
+	 * @param arrList list will be created from the document
+	 * @return DOM document
+	 * @throws ParserConfigurationException
+	 */
+	public Document createDocument(ArrayList<Task> arrList)
 			throws ParserConfigurationException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setValidating(true);
@@ -109,35 +115,35 @@ public class XMLreadWrite {
 		Element taskListElement = doc.createElement("taskList");
 		doc.appendChild(taskListElement);
 
-		for (int i = 0; i < arrList2.size(); i++) {
+		for (int i = 0; i < arrList.size(); i++) {
 			Element task = doc.createElement("task");
 			taskListElement.appendChild(task);
 
-			task.setAttribute("name", arrList2.get(i).getTitle());
+			task.setAttribute("name", arrList.get(i).getTitle());
 
 			Element date = doc.createElement("date");
 			task.appendChild(date);
 
 			Element fromDate = doc.createElement("from");
-			fromDate.appendChild(doc.createTextNode(sdf.format(arrList2.get(i)
+			fromDate.appendChild(doc.createTextNode(sdf.format(arrList.get(i)
 					.getStartTime())));
 			date.appendChild(fromDate);
 
-			if (arrList2.get(i).isRepeated()) {
+			if (arrList.get(i).isRepeated()) {
 				Element toDate = doc.createElement("to");
-				toDate.appendChild(doc.createTextNode(sdf.format(arrList2.get(i)
+				toDate.appendChild(doc.createTextNode(sdf.format(arrList.get(i)
 						.getEndTime())));
 				date.appendChild(toDate);
 			}
 
 			Element repeats = doc.createElement("repeats");
 			repeats.appendChild(doc.createTextNode(Integer
-					.toString(arrList2.get(i).getRepeatCount())));
+					.toString(arrList.get(i).getRepeatCount())));
 			task.appendChild(repeats);
 
 			Element visibility = doc.createElement("visibility");
 			visibility.appendChild(doc.createTextNode(Boolean
-					.toString(arrList2.get(i).isActive())));
+					.toString(arrList.get(i).isActive())));
 			task.appendChild(visibility);
 
 		}

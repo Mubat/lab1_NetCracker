@@ -11,14 +11,7 @@ import java.io.Serializable;
 public class ArrayTaskList extends TaskList implements Iterable<Task>, Cloneable,Serializable {
 
 	private static final long serialVersionUID = 1L;
-    /**
-	 * @uml.property  name="razmerMassivaTask"
-	 */
     private int razmerMassivaTask=0;
-    /**
-	 * @uml.property  name="massivTask"
-	 * @uml.associationEnd  multiplicity="(0 -1)"
-	 */
     private Task[] massivTask = new Task[100];
 //============================================================
 

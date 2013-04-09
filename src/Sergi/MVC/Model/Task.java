@@ -5,8 +5,9 @@ import java.util.*;
 import java.io.Serializable;
 
 /**
- * @author Sergienko Oleg Danniy klass opisivaet zadachu kotoraya imeet opisanie
- *         i vramya opovesheniya o ney.
+ * Danniy klass opisivaet zadachu kotoraya imeet opisanie
+ * i vramya opovesheniya o ney.
+ * @author Sergienko Oleg 
  */
 public class Task implements Cloneable, Serializable {
 

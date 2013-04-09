@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -31,7 +32,6 @@ public class Controller extends Tools implements ActionListener,
     private static MainFrame mainFrame;
     private ShadowTasks shadowTasks;
     private ArrayList<Task> printedTasks = new ArrayList<Task>();
-
     // индексы задач, которые уже выведены.
     // Нужно для того, чтобы не выводить одну и ту же
     // задачу несколько раз
@@ -72,7 +72,10 @@ public class Controller extends Tools implements ActionListener,
             error(mainFrame, e.toString());
         }
     }
-
+    
+    /**
+     * method retains all of the tasks in the xml file and closes the program
+     */
     public void storeTasksAndExit() {
         try {
             model.writeTasksToFile();
@@ -168,7 +171,7 @@ public class Controller extends Tools implements ActionListener,
             }
             case BUTTON_NAME_REMOVE: {
                 MainFrame frame = (MainFrame) event.getSource();
-                for (Object task : frame.getSelectasValuesList()) {
+                for (Object task : frame.getSelectedValuesList()) {
                     model.removeTask((Task) task);
                 }
                 break;
@@ -200,7 +203,7 @@ public class Controller extends Tools implements ActionListener,
                 Task task = model.getTaskList().get(
                         model.getTaskIndex(taskToAside));
                 Date continueTime = new Date(
-                        currentTime().getTime() + 5 * 60 * 1000);
+                        Calendar.getInstance().getTimeInMillis() + 5 * 60 * 1000);
                 shadowTasks.add(continueTime, task);
                 printedTasks.remove(task);
                 object.dispose();
@@ -224,21 +227,4 @@ public class Controller extends Tools implements ActionListener,
         }
     }
 
-    /*
-     * //=========ShadowTasks================
-     * 
-     * protected void shadowTasksAdd(Date date, Task task) {
-     * shadowTasks.add(date, task); }
-     * 
-     * protected boolean shadowTasksRemove(Date date, Task task) throws
-     * ModelException { return shadowTasks.remove(date, task); }
-     * 
-     * protected boolean shadowTasksIsEmpty() { return shadowTasks.isEmpty(); }
-     * 
-     * protected boolean shadowTasksContainsTask(Task onsetTask) throws
-     * ModelException { return shadowTasks.containsTask(onsetTask); }
-     * 
-     * protected LinkedList<Task> ShadowTasksGetShadowList(Date dueDate) {
-     * return shadowTasks.getShadowList(dueDate); }
-     */
 }

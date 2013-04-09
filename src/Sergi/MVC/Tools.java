@@ -1,61 +1,64 @@
 package Sergi.MVC;
 
+import java.awt.Component;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import Sergi.MVC.Viewer.MainFrame;
-
-/**
- * Класс-инструментарий. Несколько полезных методов.
- * @author Sergienko Oleg
- *
- */
+ /**
+  * Class-based tools. A few useful methods.
+  * @author Sergienko Oleg
+  *
+  */
 public class Tools {
 
     /**
-     * Вывод ошибки с привязкой к фрейму-родителю.
-     * @param frame фрейм, к которому будет привязано сообщение об ошибке.
-     * @param errorString Сообщение об ошибке, которое будет выведено.
+     * Displays error with reference to the parent frame.
+     * @param frame the frame, which will be assigned an error.
+     * @param errorString error message that appears.
      */
-    public static void error(JFrame frame, Object errorString) {
-        MainFrame.showErrorMessage(frame, errorString.toString());
+    public static void error(Component component, Object errorString) {
+        JOptionPane.showMessageDialog(component,
+                errorString.toString(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
     }
 
+
     /**
-     * Вывод ошибки без привязки к фрейму-родителю.
-     * @param errorString Сообщение об ошибке, которое будет выведено.
+     * Displays error without reference to the parent frame.
+     * @param errorString The error message that appears.
      */
     public static void error(String errorString) {
         error(null, errorString);
     }
     
     /** 
-     * Вывод информационного сообщения без привязки к фрему-родителю.
-     * @param string Информационное собщение, которое нужно вывести.
+     * The output data message without reference to frame-parent.
+     * @param string Information message here to be displayed.
      */
     public static void info(String string) {
         JOptionPane.showMessageDialog(null, string,"Задача наступила", JOptionPane.INFORMATION_MESSAGE);
     }
     
+    /**
+     * method forms the time without seconds and milliseconds
+     * @param date the time you want to convert
+     * @return time without seconds and milliseconds
+     */
     public static Date toDateFormat(Date date) {
         Calendar newDate = new GregorianCalendar();
         newDate.setTime(date);
         return new Date(date.getTime() - newDate.get(Calendar.SECOND)* 1000 - newDate.get(Calendar.MILLISECOND));
     }
     
+    /**
+     * method forms the current time without seconds and milliseconds
+     * @return current time without seconds and milliseconds
+     */
     public static Date toCurentDateFormat() {
-        return toDateFormat(currentTime());
+        return toDateFormat(Calendar.getInstance().getTime());
     }
     
-    public static Date currentTime() {
-        return new Date();
-    }
     
-    public static void sysOut(Object outString) {
-        System.out.println("[" + toCurentDateFormat() + "]: " + outString.toString());
-    }
 }

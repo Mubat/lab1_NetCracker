@@ -4,6 +4,11 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+/**
+ * implementation of the class ErrorHandler
+ * @author Mubat
+ *
+ */
 public class MyErrHandler implements ErrorHandler {
 
 	@Override

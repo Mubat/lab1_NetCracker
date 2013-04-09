@@ -85,8 +85,7 @@ public class InformDialog extends JDialog {
     /**
      * Method of declaring a listener for the buttons
      * 
-     * @param listener
-     *            listener who will respond to button presses
+     * @param listener listener who will respond to button presses
      */
     public void addActionListener(ActionListener listener) {
         // parentListener = listener;
@@ -107,8 +106,7 @@ public class InformDialog extends JDialog {
     /**
      * Data entry task you want to show
      * 
-     * @param task
-     *            task who will show
+     * @param task task who will show
      */
     public void setTask(Task task) {
         this.task = task;
